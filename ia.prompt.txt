@@ -1,0 +1,77 @@
+IDEA:
+Eres un desarrollador experto en lenguaje c# y SQL. Utilizas SQL Server a menudo y eres un analista de datos e ingeniero de software.
+Tienes la tarea de diseñar la arquitectura de este portal de proveedores. Tienes que diseñar la estructura la estructura completa tanto del back-end como del front-end.
+Eres el ingeniero de software full-stack del proyecto. Tienes la tarea de desarrollar el código completo para la API, el sitio web, la aplicación móvil, todo el soporte de notificaciones y seguridad, la Conciliación a Tres Vías, y más. Tienes la responsabilidad de mantener buenas prácticas de programación, ser claro y robusto en el desarrollo. Debes escribir código escalable y mantenible. El lenguaje que utilizarás es c#, de ser posible, y SQL SERVER para la base de datos.
+Usarás el server localhost, y la base de datos se llamará "PortalProveedoresDB".
+Eres el encargado de llevar este proyeco a la realidad utilizando el IDE Visual Studio 2022. Debes generar las instrucciones para cada archivo de código y para la creación de cada tipo de subproyecto, indicando qué proyecto debe crearse en Visual Studio 2022 y los parámetros que deben ingresarse durante su creación.
+También, eres un ingeniero de seguridad y redes, que comprende toda la documentación oficial y de foros verídicos y confiables en lo que respecta a lso webservices de la AFIP (Administracion Federal de Ingresos Publicos).
+
+
+DESARROLLO:
+La plataforma del portal de proveedores no utiliza una carga manual, sino que recibe las facturas por medio de la lectura de un código QR. Este código QR se genera desde el usuario del proveedor, cuando éste carga una factura que ha generado en AFIP y que ha declarado en el portal de proveedores.
+El circuito de la compra es el siguiente:
+A) El cliente emite una orden de compra al provedor. El proveedor es notificado de que tiene una orden de compra pendiente de responder.
+B) El proveedor envia una corizacion al cliente, linkeada a la orden de compra inicial. Una misma orden de compra puede tener muchas cotizaciones, pero una cotizacion solo puede pertenecer a una unica orden de compra.
+C) El cliente acepta una o varias cotizaciones linkeadas a la orden de compra inicial. El portal de proveedores y su infraestructura back-end y front-end deben permitir visualizar rapidamente varias cotizaciones para realizar aceptaciones masivas.
+D) Cuando la cotizacion es aceptada, el proveedor envia la mercaderia y acompaña un remito. Puede subir una copia en PDF o un escaneo o foto del remito al portal de proveedores para asociarlo a una o varias cotizaciones aceptadas, que a su vez estan linkeadas a una única orden de compra.
+E) Cuando la mercadería llega al depósito del cliente, se verifica que las cantidades indicadas en el remito coincidan con el envío de mercadería recibido. Esta verificación se guarda en el portal de proveedores, pudiendo hacerse utilizando la aplicacion movil o el sitio web. Aqui se detallan las cantidades recibidas, y se procede a registrar en sistema la recepcion de la mercadería. El proveedor recibe un aviso de que han recepcionado correctamente su mercadería, o de que ha habido diferencias, si existieran.
+F) Cuando la mercadería es entregada y recibida, el proveedor debe adjuntar una factura en PDF (debe ser en formato PDF), para linkearla a uno o varios remitos que han sido recepcionados. El objetivo de obligar al proveedor a adjuntar la factura en PDF es para poder analizarla con un motor IA e identificar los siguientes datos dentro de la factura:
+F.1) Número de CUIT que emitió la factura y el nombre completo del mismo que figura en la factura.
+F.2) Fecha de emision de la factura.
+F.3) Tipo de factura: Factura, Nota de Credito o Nota de Debito.
+F.4) Letra de la factura: puede ser "A", "B" o "C".
+F.5) Número de CUIT destinatario de la factura. Este número debe ser el número de CUIT del cliente. Este paso es crucial para corroborar que la factura que recibe el cliente realmente fue emitida a el cliente y no a otro.
+F.6) Código QR con el dato de "CAE" o "CAEA". Este es un código de autenticacion que AFIP emite para cada factura, a fin de certificar que dicho documento es valido. Este paso es crucial para saber que la factura recibida es verdadera y no es falsa. Una vez que se extrae el código con el CAE o CAEA, se debe verificar por medio de un webservice de AFIP que dicho código es valido. En el caso que no sea válido, la factura permanece en el portal de proveedores, pero se marca como inválida por haber sido rechazado el CAE o CAEA.
+F.7) Las cantidades de mercaderia.
+F.8) Los precios de las mercaderías.
+F.9) Los impuestos que contiene la factura.
+F.10) El total sin impuestos de la factura.
+F.11) El total incluyendo impestos de la factura.
+
+
+ACLARACIONES IMPORTANTES:
+1) Siempre que menciono en este prompt la palabra "factura", se refiere a "factura", "nota de credito" o "nota de debito".
+2) Una vez que la mercaderia ha salido del deposito del proveedor al deposito del cliente, el conductor del transporte lleva un teléfono móvil con tecnología Android que contiene una aplicación que se conecta al portal de proveedores y descarga un código QR con una identificacion unívoca a un remito en específico. Este código QR no contiene datos sensibles, solo un puntero para que la API identifique de qué proveedor y de qué remito se trata ese código QR. Este código QR tiene datos hasheados y encriptados para garantizar la máxima seguridad.
+3) Debes generar la solución para correrla en el IDE Visual Studio 2022. Genera la estructura completa de la solución, con sus proyectos, carpetas, clases, etc. El nombre de la solucion será "PortalProveedores". El nombre de cada sub-proyecto incluido en esta solucion de Visual Studio lo debes determinar tú de acuerdo a tu experiencia como ingenierio de software senior.
+4) Cuando envíes la respuesta, hazlo en el siguiente orden:
+4.1) Estructura del proyecto en Visual Studio con el arbol de directorios.
+4.2) Código completo para toda la solución. Asegúrate de no crear links a archivos, sino de enviar el código dentro de tu respuesta.
+4.3) Manual de instrucciones, de acuerdo a las indicaciones que te envío en este prompt, en el título "ALCANCE".
+4.4) Descripción completa del proyecto para colocar en BeHance.
+4.5) Aclaraciones que tú consideres importantes en cuanto a recaudos que debe tener la persona encargada de realizar el mantenimiento del código.
+4.6) Para cada fragmento de código que generes, inclúyelo dentro de la repsuesta que me des, y ponle el título indicando a qué proyecto y directorio pertenece.
+4.7) Utiliza tecnología de punta, para garantizar la seguridad, la escalabilidad y el mantenimiento del código.
+
+
+EJEMPLOS:
+Cuando el transporte con la mercadería del proveedor llega a destino, la persona que está esperándo la mercadería utiliza la misma aplicación Android, con la diferencia de que se ha logueado con un usuario de cliente, y no de proveedor. Este usuario de cliente le permite leer el código QR con su celular, estando adentro de la aplicación Android que se conecta al portal de proveedores, para validar que la mercadería recibida coincide con el remito enviado en dicho QR. Cuando lee el código QR, le aparece en su pantalla los datos de dicho remito: quien lo emitió, la cantidad de productos, el precio de los productos, todo acorde a lo declarado por el proveedor. Entonces, quien ha leído el código QR puede indicar si ha recibido la totalidad de la mercadería o si ha habido faltantes o sobrantes, por medio de una serie de checkbox y textbox en los cuales se detalla por un lado la cantidad que debió haber llegado, y en otro grupo de controles hay espacios en blanco para rellenar con las cantidades que efectivamente llegaron.
+Una vez que la persona que ha leído el QR confirma que está todo bien, presiona un botón en su aplicacion movil para confirmar en el portal de proveedores la recepcion de esa factura, y la aplicacion le pide dos firmas: una de la persona que confirmó la recepción de la mercadería, y otra firma del transportista que llevó la mercadería hasta ese lugar.
+En ese momento, se envía una notificación avisando que se ha recepcionado dicho remito. Se avisa tanto al proveedor como al cliente.
+Está contemplada tambien la idea de poder acceder a la plataforma desde sitios web de PC y Móviles para que tanto el usuaio proveedor, como el usuario cliente puedan visualuzar los remitos que se han emitido, los que se han recibido, y los que están pendientes de recepción.
+
+
+ALCANCE:
+Esta plataforma debe ser rica en elementos visuales y robusta en cuanto a seguridad. Debe contar con una autenticacion con cuenta de Google, o Microsoft, o Corporativa. Al momento de registrar un nuevo usuario, debe guardar una foto selfie de dicha persona, para poder identificarla.
+Hay varios roles de usuario:
+A) Administrativo de parte del Cliente.
+B) Administrativo de parte del Proveedor.
+C) Transportista de mercadería.
+D) Recepcionador de mercaderia en deposito de cliente.
+E) Despachante de mercaderia desde deposito de proveedor.
+La compatibilidad de roles de proveedor se puede dar entre el B), C) y E). Es decir, un mismo usuario proveedor puede tener los roles B), C) y E) a la vez, o elegir cuál o cuáles desea tener.
+La compatibilidad de roles de cliente se puede dar entre el A), y D). Es decir, un mismo usuario cliente puede tener los roles A), D) a la vez, o elegir cuál o cuáles desea tener.
+Para que la aplicacion movil o el sitio web acceda a la generacion de un código QR, para luego ser escaneado cuando la mercadería llega al depósito del cliente, el usuario proveedor que solicita la generación del QR debe contener el rol E).
+Para que la aplicacion movil o el sitio web acceda a la lectura y aceptación de un código QR que se ha leído, el usuario cliente que solicita la lectura y aceptacion del QR debe contener el rol D).
+
+El código que desarrolles debe ser completo, abarcando todos los puntos de este desarrollo.
+El código para la aplicación móvil debe ejecutarse en sistemas operativos Android 12 y superiores.
+Al finalizar, debes generar el manual de instrucciones para el sitio web del lado del usuario proveedor, el sitio web del lado del usuario cliente, la aplicación móvil del lado del usuario proveedor, la aplicación móvil del lado del usuario cliente, y para el desarrollador que realice el mantenimiento tanto de la base de datos como del código generado.
+Adicionalmente, debes generar una descripción completa para colocar en un repositorio como Behance, para publicar el proyecto.
+
+
+LIMITES:
+Evita generar código que no existe. Básate en la documentación oficial del MIT Microsoft, de SQL SERVER, y de Andoid. Concéntrate en el prompt solicitado, y si no sabes como resolver algún punto en particular, o tienes dudas, pregúntamelo para que te dé indicaciones más específicas.
+No seas escaso en el código que desarrolles. Extiéndete todo lo necesario para lograr tu obejtivo como desarrollador senior full-stack.
+Evita generar links a archivos que vayas generando. Todo el código que generes debe estar debidamente estructurado y debe estar dentro de la respuesta que envíes, separando cada fragmento en un bloque diferente. Esta separación debe ser de acuerdo a la ubicación de cada archivo con código dentro de cada proyecto y dentro de cada directorio.
+En cuanto al código SQL, asgúrate que sea ágil cuando sea ejecutado en SQL Server. Toma todas las precauciones necesarias para que las sentencias no generen retrasos innecesarios en el servidor.
+No te limites en la extensión del código.

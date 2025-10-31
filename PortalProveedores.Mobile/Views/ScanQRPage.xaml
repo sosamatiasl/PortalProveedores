@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PortalProveedores.Mobile.ViewModels"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
+             x:DataType="vm:ScanQRViewModel"
+             x:Class="PortalProveedores.Mobile.Views.ScanQRPage"
+             Title="{Binding Title}">
+
+    <Grid>
+        <zxing:BarcodeReader 
+            x:Name="BarcodeReader"
+            IsDetecting="{Binding IsScanning}"
+            BarcodesDetectedCommand="{Binding BarcodesDetectedCommand}"
+            VerticalOptions="FillAndExpand"
+            HorizontalOptions="FillAndExpand" >
+
+            <zxing:BarcodeReader.Options>
+                <zxing:BarcodeReaderOptions Formats="QRCode" />
+            </zxing:BarcodeReader.Options>
+        </zxing:BarcodeReader>
+
+        <VerticalStackLayout VerticalOptions="End" Padding="20" BackgroundColor="#80000000">
+            <Label 
+                Text="Enfoca la cámara sobre el Código QR del Remito."
+                TextColor="White"
+                HorizontalOptions="Center" />
+
+            <ActivityIndicator
+                IsRunning="{Binding IsLoading}"
+                HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

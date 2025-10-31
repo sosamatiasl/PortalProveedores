@@ -12,9 +12,14 @@ namespace PortalProveedores.Domain.Entities
         public long CotizacionId { get; set; }
         public Cotizacion Cotizacion { get; set; } = null!;
 
+        public long ProductoId { get; set; }
+        public Producto Producto { get; set; } = null!;
+
         public string Sku { get; set; } = string.Empty;
         public string Descripcion { get; set; } = string.Empty;
         public decimal Cantidad { get; set; }
+
+        // Este precio se toma del catálogo (ProductoPrecio), no es ingresado por el proveedor.
         public decimal PrecioUnitario { get; set; }
 
         public decimal Subtotal => Cantidad * PrecioUnitario;

@@ -12,6 +12,8 @@ using System.Linq;
 
 namespace PortalProveedores.Application.Features.Reports.Queries
 {
+    // OLD - Handler directo en Query (ahora se usa IConciliacionService)
+    /*
     public class GetConciliacionQueryHandler : IRequestHandler<GetConciliacionQuery, ConciliacionReporteDto>
     {
         private readonly IApplicationDbContext _context;
@@ -106,6 +108,35 @@ namespace PortalProveedores.Application.Features.Reports.Queries
                 NumeroOrden = ordenesCompra.FirstOrDefault()?.NumeroOrden ?? "Múltiples OCs",
                 ItemsConciliados = itemsConciliados
             };
+        }
+    }
+    */
+
+    // NEW - Ahora se usa el servicio IConciliacionService
+    public class GetConciliacionQueryHandler : IRequestHandler<GetConciliacionQuery, ConciliacionReporteDto>
+    {
+        private readonly IConciliacionService _conciliacionService;
+        private readonly ICurrentUserService _currentUser;
+
+        public GetConciliacionQueryHandler(IConciliacionService conciliacionService, ICurrentUserService currentUser)
+        {
+            _conciliacionService = conciliacionService;
+            _currentUser = currentUser;
+        }
+
+        public async Task<ConciliacionReporteDto> Handle(GetConciliacionQuery request, CancellationToken cancellationToken)
+        {
+            // 1. Seguridad: Solo Rol A (Admin Cliente) puede ver la conciliación
+            var clienteId = _currentUser.ClienteId;
+            if (!clienteId.HasValue || !_currentUser.IsInRole("AdministrativoCliente"))
+            {
+                throw new UnauthorizedAccessException("Acceso denegado a reportes de conciliación.");
+            }
+
+            // 2. Delegar el cálculo al servicio
+            var reporte = await _conciliacionService.CalcularConciliacionAsync(request.FacturaId, clienteId.Value);
+
+            return reporte;
         }
     }
 }

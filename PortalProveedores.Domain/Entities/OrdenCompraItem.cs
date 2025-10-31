@@ -12,6 +12,10 @@ namespace PortalProveedores.Domain.Entities
         public long OrdenCompraId { get; set; }
         public OrdenCompra OrdenCompra { get; set; } = null!;
 
+        // Enlace al producto maestro del catálogo
+        public long ProductoId { get; set; }
+        public Producto Producto { get; set; } = null!;
+
         public string Sku { get; set; } = string.Empty;
         public string Descripcion { get; set; } = string.Empty;
         public decimal Cantidad { get; set; }

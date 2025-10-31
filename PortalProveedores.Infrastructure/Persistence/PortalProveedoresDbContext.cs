@@ -49,6 +49,9 @@ namespace PortalProveedores.Infrastructure.Persistence
         public DbSet<Factura> Facturas { get; set; } = null!;
         public DbSet<FacturaDetalle> FacturaDetalles { get; set; } = null!;
         public DbSet<FacturaRemitos> FacturaRemitos { get; set; } = null!;
+        public DbSet<NotaDebitoCredito> NotasDebitoCredito { get; set; } = null!;
+        public DbSet<Producto> Productos { get; set; } = null!;
+        public DbSet<ProductoPrecio> ProductoPrecios { get; set; } = null!;
 
 
         // Seguridad - Refresh Tokens
@@ -105,13 +108,13 @@ namespace PortalProveedores.Infrastructure.Persistence
             builder.Entity<IdentityUserToken<string>>(b => b.ToTable("UsuarioTokens"));
             builder.Entity<IdentityRoleClaim<int>>(b => b.ToTable("RolClaims"));
 
-            // Aquí iría el resto de la configuración de las entidades de negocio
+            // Aquí va el resto de la configuración de las entidades de negocio
             // (OrdenesCompra, Cotizaciones, etc.)
 
             // Orden de Compra
             builder.Entity<OrdenCompra>(b =>
             {
-                b.ToTable("OrdenesCompra"); // Coincide con el script
+                b.ToTable("OrdenesCompra");
                 b.HasKey(oc => oc.Id);
                 b.Property(oc => oc.NumeroOrden).HasMaxLength(100).IsRequired();
 
@@ -134,16 +137,22 @@ namespace PortalProveedores.Infrastructure.Persistence
 
             builder.Entity<OrdenCompraItem>(b =>
             {
-                b.ToTable("OrdenCompraItems"); // Nueva tabla
+                b.ToTable("OrdenCompraItems");
                 b.HasKey(i => i.Id);
                 b.Property(i => i.Descripcion).HasMaxLength(500).IsRequired();
                 b.Property(i => i.Cantidad).HasColumnType("decimal(18,2)");
+
+                // Relación FK al Catálogo
+                b.HasOne(i => i.Producto)
+                    .WithMany()
+                    .HasForeignKey(i => i.ProductoId)
+                    .OnDelete(DeleteBehavior.NoAction); // No borrar el item si se borra el producto
             });
 
             // Cotización
             builder.Entity<Cotizacion>(b =>
             {
-                b.ToTable("Cotizaciones"); // Coincide con el script
+                b.ToTable("Cotizaciones");
                 b.HasKey(c => c.Id);
 
                 // Relación 1:N (OC -> Cotización)
@@ -163,17 +172,23 @@ namespace PortalProveedores.Infrastructure.Persistence
 
             builder.Entity<CotizacionItem>(b =>
             {
-                b.ToTable("CotizacionItems"); // Nueva tabla
+                b.ToTable("CotizacionItems");
                 b.HasKey(i => i.Id);
                 b.Property(i => i.Descripcion).HasMaxLength(500).IsRequired();
                 b.Property(i => i.Cantidad).HasColumnType("decimal(18,2)");
                 b.Property(i => i.PrecioUnitario).HasColumnType("decimal(18,2)");
+
+                // Relación FK al Catálogo
+                b.HasOne(i => i.Producto)
+                    .WithMany()
+                    .HasForeignKey(i => i.ProductoId)
+                    .OnDelete(DeleteBehavior.NoAction); // No borrar el item si se borra el producto
             });
 
             // Cliente
             builder.Entity<Cliente>(b =>
             {
-                b.ToTable("Clientes"); // Coincide con el script
+                b.ToTable("Clientes");
                 b.HasKey(c => c.Id);
                 b.Property(c => c.RazonSocial).HasMaxLength(200).IsRequired();
             });
@@ -181,7 +196,7 @@ namespace PortalProveedores.Infrastructure.Persistence
             // Proveedor
             builder.Entity<Proveedor>(b =>
             {
-                b.ToTable("Proveedores"); // Coincide con el script
+                b.ToTable("Proveedores");
                 b.HasKey(p => p.Id);
                 b.Property(p => p.RazonSocial).HasMaxLength(200).IsRequired();
             });
@@ -189,7 +204,7 @@ namespace PortalProveedores.Infrastructure.Persistence
             // Remito
             builder.Entity<Remito>(b =>
             {
-                b.ToTable("Remitos"); // Coincide con el script
+                b.ToTable("Remitos");
                 b.HasKey(r => r.Id);
                 b.Property(r => r.NumeroRemito).HasMaxLength(100).IsRequired();
 
@@ -200,7 +215,7 @@ namespace PortalProveedores.Infrastructure.Persistence
             // Relación N-N: Cotizacion <-> Remito
             builder.Entity<CotizacionRemitos>(b =>
             {
-                b.ToTable("CotizacionRemitos"); // Coincide con el script
+                b.ToTable("CotizacionRemitos");
                 b.HasKey(cr => new { cr.CotizacionId, cr.RemitoId }); // Clave primaria compuesta
 
                 b.HasOne(cr => cr.Cotizacion)
@@ -217,7 +232,7 @@ namespace PortalProveedores.Infrastructure.Persistence
             // Remito QR Code
             builder.Entity<RemitoQRCode>(b =>
             {
-                b.ToTable("RemitoQRCodes"); // Coincide con el script
+                b.ToTable("RemitoQRCodes");
                 b.HasKey(qr => qr.Id);
                 b.HasIndex(qr => qr.CodigoHash).IsUnique(); // El token DEBE ser único
 
@@ -230,7 +245,7 @@ namespace PortalProveedores.Infrastructure.Persistence
             // Recepcion
             builder.Entity<Recepcion>(b =>
             {
-                b.ToTable("Recepciones"); // Coincide con el script
+                b.ToTable("Recepciones");
                 b.HasKey(r => r.Id);
 
                 //Relación 1:1 con Remito
@@ -254,7 +269,7 @@ namespace PortalProveedores.Infrastructure.Persistence
             // RecepcionDetalle
             builder.Entity<RecepcionDetalle>(b =>
             {
-                b.ToTable("RecepcionDetalles"); // Coincide con el script
+                b.ToTable("RecepcionDetalles");
                 b.HasKey(rd => rd.Id);
                 b.Property(rd => rd.CantidadDeclarada).HasColumnType("decimal(18,2)");
                 b.Property(rd => rd.CantidadRecibida).HasColumnType("decimal(18,2)");
@@ -302,6 +317,62 @@ namespace PortalProveedores.Infrastructure.Persistence
                     .HasForeignKey(fr => fr.RemitoId)
                     .OnDelete(DeleteBehavior.NoAction); // No se borra el Remito si se borra la Factura
             });
+
+            // --- Configuración de NotaDebitoCredito ---
+            builder.Entity<NotaDebitoCredito>(b =>
+            {
+                b.ToTable("NotasDebitoCredito");
+                b.HasKey(n => n.Id);
+
+                b.Property(n => n.MontoAjuste).HasColumnType("decimal(18,2)");
+
+                b.HasOne(n => n.Factura)
+                    .WithMany() // Una factura puede tener varias notas de ajuste
+                    .HasForeignKey(n => n.FacturaId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                b.HasOne(n => n.Cliente).WithMany().HasForeignKey(n => n.ClienteId).OnDelete(DeleteBehavior.NoAction);
+                b.HasOne(n => n.Proveedor).WithMany().HasForeignKey(n => n.ProveedorId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // --- Configuración de Catálogo ---
+            builder.Entity<Producto>(b =>
+            {
+                b.ToTable("CatalogoProductos");
+                b.HasKey(p => p.Id);
+
+                // Un Cliente puede tener el mismo SKU (raro pero posible), 
+                // pero el SKU debe ser único *dentro* del catálogo de un Cliente.
+                b.HasIndex(p => new { p.ClienteId, p.Sku }).IsUnique();
+
+                b.Property(p => p.Descripcion).HasMaxLength(500).IsRequired();
+                b.Property(p => p.Sku).HasMaxLength(100).IsRequired();
+
+                b.HasOne(p => p.Cliente)
+                    .WithMany() // Un cliente tiene N productos
+                    .HasForeignKey(p => p.ClienteId)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            builder.Entity<ProductoPrecio>(b =>
+            {
+                b.ToTable("CatalogoProductoPrecios");
+                b.HasKey(pp => pp.Id);
+
+                // Un producto solo puede tener un precio por proveedor (en un rango de fechas)
+                // (Se omite la validación de fechas traslapadas por simplicidad aquí)
+                b.HasIndex(pp => new { pp.ProductoId, pp.ProveedorId }).IsUnique();
+
+                b.Property(pp => pp.PrecioAcordado).HasColumnType("decimal(18,4)"); // Más precisión para precios
+
+                b.HasOne(pp => pp.Producto)
+                    .WithMany(p => p.PreciosPorProveedor)
+                    .HasForeignKey(pp => pp.ProductoId)
+                    .OnDelete(DeleteBehavior.Cascade); // Si se borra el producto, se borran sus precios
+
+                b.HasOne(pp => pp.Proveedor).WithMany().HasForeignKey(pp => pp.ProveedorId).OnDelete(DeleteBehavior.NoAction);
+            });
+
 
             // --- Configuración de RefreshToken ---
             builder.Entity<RefreshToken>(b =>

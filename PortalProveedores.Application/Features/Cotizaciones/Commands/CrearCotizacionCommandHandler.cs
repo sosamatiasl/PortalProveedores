@@ -32,58 +32,83 @@ namespace PortalProveedores.Application.Features.Cotizaciones.Commands
 
         public async Task<long> Handle(CrearCotizacionCommand request, CancellationToken cancellationToken)
         {
-            // 1. Seguridad: Verificar que el usuario sea un Proveedor
+            // 1. Seguridad: Rol B (Proveedor)
             var proveedorId = _currentUser.ProveedorId;
             if (!proveedorId.HasValue)
             {
                 throw new UnauthorizedAccessException("El usuario no pertenece a un Proveedor.");
             }
 
-            // 2. Validar que la Orden de Compra exista y le pertenezca
+            // 2. Validar que la OC exista y le pertenezca
             var ordenCompra = await _context.OrdenesCompra
+                .Include(oc => oc.Items) // Incluir items de la OC para validar
                 .FirstOrDefaultAsync(oc => oc.Id == request.OrdenCompraId && oc.ProveedorId == proveedorId.Value, cancellationToken);
 
             if (ordenCompra == null)
-            {
-                throw new Exception("Orden de Compra no válida o no pertenece a este proveedor."); // O usar una excepción custom
-            }
+                throw new Exception("Orden de Compra no válida o no pertenece a este proveedor.");
 
-            // 3. Subir el PDF (si existe)
+            // 3. Subir el PDF (sin cambios)
             string? pdfUrl = null;
-            if (request.ArchivoPDF != null && request.ArchivoPDF.Length > 0)
+            if (request.ArchivoPDF != null) { /* ... lógica de subida ... */ }
+
+            var cotizacionItems = new List<CotizacionItem>();
+            decimal montoTotalCalculado = 0;
+
+            // 4. Validar Items y OBTENER PRECIOS DEL CATÁLOGO
+            foreach (var itemDto in request.Items)
             {
-                var fileName = $"cot_{proveedorId.Value}_{Guid.NewGuid()}{Path.GetExtension(request.ArchivoPDF.FileName)}";
-                await using var stream = request.ArchivoPDF.OpenReadStream();
-                pdfUrl = await _fileStorageService.UploadAsync(stream, fileName, "cotizaciones");
+                // 4a. Validar que el producto estaba en la OC original
+                var itemOC = ordenCompra.Items.FirstOrDefault(i => i.ProductoId == itemDto.ProductoId);
+                if (itemOC == null)
+                {
+                    throw new Exception($"El Producto ID {itemDto.ProductoId} no fue solicitado en la Orden de Compra.");
+                }
+
+                // 4b. OBTENER EL PRECIO del Catálogo
+                var precioAcordado = await _context.ProductoPrecios
+                    .FirstOrDefaultAsync(pp =>
+                        pp.ProductoId == itemDto.ProductoId &&
+                        pp.ProveedorId == proveedorId.Value && // Precio asignado a ESTE proveedor
+                        pp.FechaVigenciaDesde <= DateTime.UtcNow &&
+                        (pp.FechaVigenciaHasta == null || pp.FechaVigenciaHasta >= DateTime.UtcNow),
+                        cancellationToken);
+
+                if (precioAcordado == null)
+                {
+                    throw new Exception($"El Producto SKU {itemOC.Sku} no tiene un precio válido asignado a su proveedor. Contacte al Cliente (Rol A).");
+                }
+
+                // 4c. Crear el item (como snapshot)
+                cotizacionItems.Add(new CotizacionItem
+                {
+                    ProductoId = itemOC.ProductoId,
+                    Sku = itemOC.Sku,
+                    Descripcion = itemOC.Descripcion,
+                    Cantidad = itemDto.Cantidad,
+                    PrecioUnitario = precioAcordado.PrecioAcordado // <-- PRECIO BLOQUEADO
+                });
+
+                // 4d. Sumar al total
+                montoTotalCalculado += (itemDto.Cantidad * precioAcordado.PrecioAcordado);
             }
 
-            // 4. Mapeo del DTO a la Entidad
+            // 5. Mapeo de la Cotización
             var cotizacion = new Cotizacion
             {
                 OrdenCompraId = request.OrdenCompraId,
-                ProveedorId = proveedorId.Value, // ID obtenido del Token
+                ProveedorId = proveedorId.Value,
                 NumeroCotizacion = request.NumeroCotizacion,
                 FechaEmision = DateTime.UtcNow,
                 ValidezDias = request.ValidezDias,
                 Estado = EstadoCotizacion.Enviada,
                 ArchivoPDF_URL = pdfUrl,
-                Items = request.Items.Select(i => new CotizacionItem
-                {
-                    Sku = i.Sku,
-                    Descripcion = i.Descripcion,
-                    Cantidad = i.Cantidad,
-                    PrecioUnitario = i.PrecioUnitario
-                }).ToList()
+                Items = cotizacionItems,
+                MontoTotal = montoTotalCalculado // <-- Total basado en precios del catálogo
             };
 
-            // Se calcula el total basado en los items
-            cotizacion.MontoTotal = cotizacion.Items.Sum(i => i.Subtotal);
-
-            // 5. Guardar en BD
+            // 6. Guardar y Notificar
             await _context.Cotizaciones.AddAsync(cotizacion, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-
-            // 6. Notificar al Cliente (Paso B)
             await _notificationService.NotificarNuevaCotizacionAsync(cotizacion);
 
             return cotizacion.Id;

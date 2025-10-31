@@ -9,11 +9,10 @@ using System.Threading.Tasks;
 namespace PortalProveedores.Application.Features.Cotizaciones.Commands
 {
     // DTO para los items
-    public record CotizacionItemDto(
-        string Sku,
-        string Descripcion,
-        decimal Cantidad,
-        decimal PrecioUnitario
+    public record CotizacionItemDto (
+        long ProductoId,
+        decimal Cantidad
+        // Precio Unitario se toma del catálogo
     );
 
     /// <summary>

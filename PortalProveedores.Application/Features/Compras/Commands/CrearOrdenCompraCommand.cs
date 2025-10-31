@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 namespace PortalProveedores.Application.Features.Compras.Commands
 {
     // DTO para los items
-    public record OrdenCompraItemDto(
-        string Sku,
-        string Descripcion,
-        decimal Cantidad,
-        string UnidadMedida
+    public record OrdenCompraItemDto
+    (
+        long ProductoId,
+        decimal Cantidad
+        // La unidad de Medida se toma del catálogo
     );
 
     /// <summary>

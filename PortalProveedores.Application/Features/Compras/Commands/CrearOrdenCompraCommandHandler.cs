@@ -28,36 +28,57 @@ namespace PortalProveedores.Application.Features.Compras.Commands
 
         public async Task<long> Handle(CrearOrdenCompraCommand request, CancellationToken cancellationToken)
         {
-            // 1. Seguridad: Verificar que el usuario sea un Cliente y obtener su ID
+            // 1. Seguridad: Rol A (Cliente)
             var clienteId = _currentUser.ClienteId;
-            if (!clienteId.HasValue)
+            if (!clienteId.HasValue || !_currentUser.IsInRole("AdministrativoCliente"))
             {
                 throw new UnauthorizedAccessException("El usuario no pertenece a un Cliente.");
             }
 
-            // 2. Mapeo del DTO a la Entidad
+            var ordenCompraItems = new List<OrdenCompraItem>();
+
+            // 2. Validar Productos y crear Items
+            foreach (var itemDto in request.Items)
+            {
+                // Validar que el producto exista EN EL CATÁLOGO del cliente
+                var producto = await _context.Productos
+                    .FirstOrDefaultAsync(p =>
+                        p.Id == itemDto.ProductoId &&
+                        p.ClienteId == clienteId.Value &&
+                        p.Activo,
+                        cancellationToken);
+
+                if (producto == null)
+                {
+                    throw new Exception($"El Producto con ID {itemDto.ProductoId} no existe, está inactivo o no pertenece a su catálogo.");
+                }
+
+                // Crear el item (como snapshot)
+                ordenCompraItems.Add(new OrdenCompraItem
+                {
+                    ProductoId = producto.Id,
+                    Sku = producto.Sku, // Copia del catálogo
+                    Descripcion = producto.Descripcion, // Copia del catálogo
+                    Cantidad = itemDto.Cantidad,
+                    UnidadMedida = producto.UnidadMedida // Copia del catálogo
+                });
+            }
+
+            // 3. Mapeo de la OC
             var ordenCompra = new OrdenCompra
             {
-                ClienteId = clienteId.Value, // ID obtenido del Token
+                ClienteId = clienteId.Value,
                 ProveedorId = request.ProveedorId,
                 NumeroOrden = request.NumeroOrden,
                 Detalles = request.Detalles,
                 FechaEmision = DateTime.UtcNow,
                 Estado = EstadoOrdenCompra.Pendiente,
-                Items = request.Items.Select(i => new OrdenCompraItem
-                {
-                    Sku = i.Sku,
-                    Descripcion = i.Descripcion,
-                    Cantidad = i.Cantidad,
-                    UnidadMedida = i.UnidadMedida
-                }).ToList()
+                Items = ordenCompraItems // Asignar la lista validada
             };
 
-            // 3. Guardar en BD
+            // 4. Guardar y Notificar
             await _context.OrdenesCompra.AddAsync(ordenCompra, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-
-            // 4. Notificar al Proveedor
             await _notificationService.NotificarNuevaOrdenCompraAsync(ordenCompra);
 
             return ordenCompra.Id;

@@ -7,6 +7,7 @@ using MediatR;
 using PortalProveedores.Application.Common.Interfaces;
 using PortalProveedores.Domain.Entities;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace PortalProveedores.Application.Features.Productos.Commands
 {

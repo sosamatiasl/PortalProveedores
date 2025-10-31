@@ -17,7 +17,9 @@ namespace PortalProveedores.Application.Common.Interfaces
         Task<List<ApplicationUser>> GetUsersInRoleAsync(string? roleName);
         Task<ApplicationUser?> GetUserByIdAsync(string userId);
         Task<IList<string>> GetUserRolesAsync(string userId);
-        Task<IdentityResult> RemoveUserFromRolesAsync(string userId, string[] roles);
+        //Task<IdentityResult> RemoveUserFromRolesAsync(string userId, string[] roles);
+        Task<bool> RemoveUserFromRolesAsync(string userId, string[] roleNames);
+        Task<bool> AddUserToRoleAsync(string userId, string roleName);
 
         // Seguridad y gestión de tokens
         Task<(string token, string refreshToken)> LoginAsync(string email, string password, string ipAddress);

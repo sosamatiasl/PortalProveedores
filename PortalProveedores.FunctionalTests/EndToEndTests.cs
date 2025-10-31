@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Moq;
 using PortalProveedores.Application.Common.Interfaces;
-using PortalProveedores.Application.Features.Compras.Commands;
 //using PortalProveedores.Application.Features.OrdenesCompra.Commands; // Falta crear esta clase
+using PortalProveedores.Application.Features.Compras.Commands;
 using PortalProveedores.Application.Features.Cotizaciones.Commands;
 using PortalProveedores.Application.Features.Facturas.Commands;
 using PortalProveedores.Application.Features.Remitos.Commands;
@@ -18,6 +18,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
+using NUnit.Framework;
 
 namespace PortalProveedores.FunctionalTests
 {
@@ -68,11 +69,11 @@ namespace PortalProveedores.FunctionalTests
             // Actúa como Administrativo Cliente (Rol A)
             var client = GetClientWithAuth(ClienteAdminToken);
 
-            var command = new CreateOrdenCompraCommand
+            var command = new CrearOrdenCompraCommand
             {
                 // Datos simulados (ClienteId 1 del SeedData)
                 ProveedorId = 1,
-                Items = new List<CreateOrdenCompraCommand.OCItemDto>
+                Items = new List<CrearOrdenCompraCommand.OrdenCompraItemDto>
             {
                 new() { Sku = "SKU001", Cantidad = 10, Descripcion = "Tornillos T10" }
             }
@@ -85,7 +86,7 @@ namespace PortalProveedores.FunctionalTests
             var result = await response.Content.ReadFromJsonAsync<dynamic>();
 
             _ordenCompraId = (long)result.Value.ordenCompraId;
-            Assert.True(_ordenCompraId > 0);
+            Xunit.Assert.True(_ordenCompraId > 0);
         }
 
         // [Fase B & C] - Proveedor cotiza y Cliente acepta
@@ -96,10 +97,10 @@ namespace PortalProveedores.FunctionalTests
             var vendorClient = GetClientWithAuth(ProveedorVendedorToken);
 
             // 1. Crear Cotización
-            var cotizacionCommand = new CreateCotizacionCommand
+            var cotizacionCommand = new CrearCotizacionCommand
             {
                 OrdenCompraId = _ordenCompraId,
-                Items = new List<CreateCotizacionCommand.CotizacionItemDto>
+                Items = new List<CrearCotizacionCommand.CotizacionItemDto>
             {
                 new() { Sku = "SKU001", Cantidad = 10, PrecioUnitario = 5.00m, Descripcion = "Tornillos T10" }
             }
@@ -135,14 +136,14 @@ namespace PortalProveedores.FunctionalTests
 
             var remitoResult = await remitoResponse.Content.ReadFromJsonAsync<dynamic>();
             _remitoId = (long)remitoResult.Value.remitoId;
-            Assert.True(_remitoId > 0);
+            Xunit.Assert.True(_remitoId > 0);
 
             // 2. Generar QR (Actúa como Despachante)
             var qrResponse = await vendorClient.PostAsync($"/api/remitos/{_remitoId}/generar-qr", null);
             qrResponse.EnsureSuccessStatusCode();
 
             _qrToken = await qrResponse.Content.ReadAsStringAsync();
-            Assert.False(string.IsNullOrEmpty(_qrToken));
+            Xunit.Assert.False(string.IsNullOrEmpty(_qrToken));
         }
 
         // [Fase E] - Cliente escanea QR y confirma Recepción
@@ -157,8 +158,8 @@ namespace PortalProveedores.FunctionalTests
             validationResponse.EnsureSuccessStatusCode();
 
             var validationResult = await validationResponse.Content.ReadFromJsonAsync<RemitoParaRecepcionDto>();
-            Assert.NotNull(validationResult);
-            Assert.Equal(_remitoId, validationResult.RemitoId);
+            Xunit.Assert.NotNull(validationResult);
+            Xunit.Assert.Equal(_remitoId, validationResult.RemitoId);
 
             // 2. Confirmar Recepción (Command)
             var confirmCommand = new ConfirmarRecepcionCommand
@@ -230,7 +231,7 @@ namespace PortalProveedores.FunctionalTests
 
             var facturaResult = await uploadResponse.Content.ReadFromJsonAsync<dynamic>();
             long facturaId = (long)facturaResult.Value.facturaId;
-            Assert.True(facturaId > 0);
+            Xunit.Assert.True(facturaId > 0);
         }
 
         // [Fase G] - Cliente consulta la Conciliación
@@ -249,8 +250,8 @@ namespace PortalProveedores.FunctionalTests
 
             var conciliacionResult = await conciliacionResponse.Content.ReadFromJsonAsync<ConciliacionReporteDto>();
 
-            Assert.NotNull(conciliacionResult);
-            Assert.False(conciliacionResult.HuboDiscrepanciasCantidad); // 10 recibidos vs 10 facturados
+            Xunit.Assert.NotNull(conciliacionResult);
+            Xunit.Assert.False(conciliacionResult.HuboDiscrepanciasCantidad); // 10 recibidos vs 10 facturados
                                                                         // Assert.True(conciliacionResult.HuboDiscrepanciasPrecio); // Si OC tenía 5 y Factura 100
         }
     }

@@ -1,0 +1,183 @@
+Error N° 1:
+Proyecto: PortalProveedores.Mobile
+Archivo: MauiProgram.cs
+Código de error: CS1061
+Descripcion del error: "MauiAppBuilder" no contiene una definición para "UseShiny" ni un método de extensión accesible "UseShiny" que acepte un primer argumento del tipo "MauiAppBuilder" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 2:
+Proyecto: PortalProveedores.Mobile
+Archivo: MauiProgram.cs
+Código de error: CS1061
+Descripcion del error: "IServiceCollection" no contiene una definición para "AddHttpClient" ni un método de extensión accesible "AddHttpClient" que acepte un primer argumento del tipo "IServiceCollection" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 3:
+Proyecto: PortalProveedores.Mobile
+Archivo: MauiProgram.cs
+Código de error: CS0246
+Descripcion del error: El nombre del tipo o del espacio de nombres 'LoadingPage' no se encontró (¿falta una directiva using o una referencia de ensamblado?).
+
+Error N° 4:
+Proyecto: PortalProveedores.Mobile
+Archivo: ApiService.cs
+Código de error: CS0535
+Descripcion del error: 'ApiService' no implementa el miembro de interfaz 'IApiService.GetAuthTokenAsync()'.
+
+Error N° 5:
+Proyecto: PortalProveedores.Mobile
+Archivo: ApiService.cs
+Código de error: CS0161
+Descripcion del error: 'ApiService.LoginAsync(AuthRequest)': no todas las rutas de acceso de código devuelven un valor.
+
+Error N° 6:
+Proyecto: PortalProveedores.Mobile
+Ruta de carpeta: /ViewModels/
+Archivo: RecepcionViewModel.cs
+Código de error: CS1739
+Descripcion del error: La mejor sobrecarga para 'GetImageStream' no tiene un parámetro denominado 'shouldDisposeStream'.
+
+Error N° 7:
+Proyecto: PortalProveedores.Mobile
+Ruta de carpeta: /ViewModels/
+Archivo: RecepcionViewModel.cs
+Código de error: CS1739
+Descripcion del error: La mejor sobrecarga para 'GetImageStream' no tiene un parámetro denominado 'format'.
+
+Error N° 8:
+Proyecto: PortalProveedores.Mobile
+Ruta de carpeta: \obj\Debug\net8.0-ios\iossimulator-x64\Microsoft.Maui.Controls.SourceGen\Microsoft.Maui.Controls.SourceGen.CodeBehindGenerator\
+Archivo: Views_ScanQRPage.xaml.sg.cs
+Código de error: CS0234
+Descripcion del error: El tipo o el nombre del espacio de nombres 'BarcodeReader' no existe en el espacio de nombres 'ZXing.Net.Maui.Controls' (¿falta alguna referencia de ensamblado?).
+
+Error N° 9:
+Proyecto: PortalProveedores.Application
+Ruta de carpeta: \Features\Ajustes\Commands\
+Archivo: GenerarNotaAjusteCommandHandler.cs
+Código de error: CS0234
+Descripcion del error: "IApplicationDbContext" no contiene una definición para "NotasDebitoCredito" ni un método de extensión accesible "NotasDebitoCredito" que acepte un primer argumento del tipo "IApplicationDbContext" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 10:
+Proyecto: PortalProveedores.Application
+Ruta de carpeta: \Features\Compras\Commands\
+Archivo: CrearOrdenCompraCommandHandler.cs
+Código de error: CS1061
+Descripcion del error: "IApplicationDbContext" no contiene una definición para "Productos" ni un método de extensión accesible "Productos" que acepte un primer argumento del tipo "IApplicationDbContext" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 11:
+Proyecto: PortalProveedores.Application
+Ruta de carpeta: \Features\Compras\Commands\
+Archivo: CrearOrdenCompraCommandHandler.cs
+Código de error: CS1061
+Descripcion del error: "DbSet<Producto>" no contiene una definición para "FirstOrDefaultAsync" ni un método de extensión accesible "FirstOrDefaultAsync" que acepte un primer argumento del tipo "DbSet<Producto>" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 12:
+Proyecto: PortalProveedores.Application
+Ruta de carpeta: \Features\Cotizaciones\Commands\
+Archivo: CrearCotizacionCommandHandler.cs
+Código de error: CS1061
+Descripcion del error: "IApplicationDbContext" no contiene una definición para "ProductoPrecios" ni un método de extensión accesible "ProductoPrecios" que acepte un primer argumento del tipo "IApplicationDbContext" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 13:
+Proyecto: PortalProveedores.Application
+Ruta de carpeta: \Features\Reports\Queries\
+Archivo: GetTrazabilidadQueryHandler.cs
+Código de error: CS1061
+Descripcion del error: "Remito" no contiene una definición para "Recepcion" ni un método de extensión accesible "Recepcion" que acepte un primer argumento del tipo "Remito" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 14:
+Proyecto: PortalProveedores.Application
+Ruta de carpeta: \Features\Users\Commands\
+Archivo: UpdateUserRoleCommandHandler.cs
+Código de error: CS1061
+Descripcion del error: "IIdentityService" no contiene una definición para "AddUserToRoleAsync" ni un método de extensión accesible "AddUserToRoleAsync" que acepte un primer argumento del tipo "IIdentityService" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 15:
+Proyecto: PortalProveedores.Application
+Ruta de carpeta: \Features\Users\Commands\
+Archivo: UpdateUserRoleCommandHandler.cs
+Código de error: CS1061
+Descripcion del error: "bool" no contiene una definición para "Succeeded" ni un método de extensión accesible "Succeeded" que acepte un primer argumento del tipo "bool" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 16:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Persistence\
+Archivo: PortalProveedoresDbContext.cs
+Código de error: CS1061
+Descripcion del error: "ApplicationUser" no contiene una definición para "RefreshTokens" ni un método de extensión accesible "RefreshTokens" que acepte un primer argumento del tipo "ApplicationUser" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 17:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: IdentityService.cs
+Código de error: CS0535
+Descripcion del error: 'IdentityService' no implementa el miembro de interfaz 'IIdentityService.GetUsersInRoleAsync(string?)'.
+
+Error N° 18:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: IdentityService.cs
+Código de error: CS0535
+Descripcion del error: 'IdentityService' no implementa el miembro de interfaz 'IIdentityService.GetUsersInRoleAsync(string?)'. 'IdentityService.GetUsersInRoleAsync(string)' no puede implementar 'IIdentityService.GetUsersInRoleAsync(string?)' porque no tiene el tipo de valor devuelto coincidente de 'Task<List<ApplicationUser>>'.
+
+Error N° 19:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: IdentityService.cs
+Código de error: CS0535
+Descripcion del error: 'IdentityService' no implementa el miembro de interfaz 'IIdentityService.GetUserByIdAsync(string)'.
+
+Error N° 20:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: IdentityService.cs
+Código de error: CS0535
+Descripcion del error: 'IdentityService' no implementa el miembro de interfaz 'IIdentityService.GetUserRolesAsync(string)'.
+
+Error N° 21:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: IdentityService.cs
+Código de error: CS0535
+Descripcion del error: 'IdentityService' no implementa el miembro de interfaz 'IIdentityService.RemoveUserFromRolesAsync(string, string[])'.
+
+Error N° 22:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: IdentityService.cs
+Código de error: CS0103
+Descripcion del error: El nombre 'GenerateJwtToken' no existe en el contexto actual.
+
+Error N° 23:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: JwtGeneratorService.cs
+Código de error: CS0535
+Descripcion del error: 'JwtGeneratorService' no implementa el miembro de interfaz 'IJwtGeneratorService.GenerateRefreshTokenAsync(ApplicationUser)'.
+
+Error N° 24:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: JwtGeneratorService.cs
+Código de error: CS1061
+Descripcion del error: "IApplicationDbContext" no contiene una definición para "RefreshTokens" ni un método de extensión accesible "RefreshTokens" que acepte un primer argumento del tipo "IApplicationDbContext" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 25:
+Proyecto: PortalProveedores.FunctionalTests
+Ruta de carpeta: 
+Archivo: EndToEndTests.cs
+Código de error: CS0246
+Descripcion del error: El nombre del tipo o del espacio de nombres 'OrderAttribute' no se encontró (¿falta una directiva using o una referencia de ensamblado?).
+
+Error N° 26:
+Proyecto: PortalProveedores.FunctionalTests
+Ruta de carpeta: 
+Archivo: EndToEndTests.cs
+Código de error: CS0246
+Descripcion del error: El nombre del tipo o del espacio de nombres 'CreateOrdenCompraCommand' no se encontró (¿falta una directiva using o una referencia de ensamblado?).
+
+Error N° 27:
+Proyecto: PortalProveedores.FunctionalTests
+Ruta de carpeta: 
+Archivo: EndToEndTests.cs
+Código de error: CS0246
+Descripcion del error: El nombre de tipo 'OrdenCompraItemDto' no existe en el tipo 'CrearOrdenCompraCommand'

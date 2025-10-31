@@ -29,5 +29,10 @@ namespace PortalProveedores.Domain.Entities
 
         // Relación 1-N con QRCodes (puede tener varios si expiran, pero solo 1 activo)
         public ICollection<RemitoQRCode> QRCodes { get; set; } = new List<RemitoQRCode>();
+
+        /// <summary>
+        /// Navegación hacia la recepción asociada. Es nula hasta que el remito es recibido.
+        /// </summary>
+        public Recepcion? Recepcion { get; set; }
     }
 }

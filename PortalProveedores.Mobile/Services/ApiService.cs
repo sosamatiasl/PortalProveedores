@@ -41,12 +41,6 @@ namespace PortalProveedores.Mobile.Services
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    // Intentar deserializar el error de la API
-                    return new AuthResult { Success = false, ErrorMessage = jsonResponse };
-                }
-
                 if (response.IsSuccessStatusCode)
                 {
                     var authResult = JsonConvert.DeserializeObject<AuthResult>(jsonResponse);
@@ -57,6 +51,11 @@ namespace PortalProveedores.Mobile.Services
                         await SecureStorage.Default.SetAsync(UserIdKey, authResult.UserId);
                     }
                     return authResult;
+                }
+                else
+                {
+                    // Intentar deserializar el error de la API
+                    return new AuthResult { Success = false, ErrorMessage = jsonResponse };
                 }
             }
             catch (Exception ex)
@@ -93,6 +92,15 @@ namespace PortalProveedores.Mobile.Services
             var result = JsonConvert.DeserializeObject<RemitoParaRecepcionDto>(jsonResponse);
 
             return result ?? throw new Exception("Respuesta del servidor inválida.");
+        }
+
+        /// <summary>
+        /// Obtiene el token de autenticación cifrado del SecureStorage.
+        /// </summary>
+        public async Task<string?> GetAuthTokenAsync()
+        {
+            // SecureStorage guarda datos cifrados de forma nativa
+            return await SecureStorage.Default.GetAsync(AuthTokenKey);
         }
 
         public async Task<long> ConfirmarRecepcionAsync(ConfirmarRecepcionCommand command)

@@ -86,13 +86,26 @@ namespace PortalProveedores.Application.Features.Users.Commands
             // 7. Añadir el nuevo rol
             var addResult = await _identityService.AddUserToRoleAsync(request.UserId, request.NewRole);
 
-            if (!addResult.Succeeded)
+            if (addResult == true)
             {
-                // Opcional: Intentar reasignar los roles antiguos en caso de fallo, para no dejar al usuario sin rol.
-                throw new Exception("Error al asignar el nuevo rol. " + string.Join("; ", addResult.Errors));
-            }
+                // Si es exitoso, remover el rol anterior (si aplica)
+                if (currentRoles.ToArray().Length > 0)
+                {
+                    removeResult = await _identityService.RemoveUserFromRolesAsync(request.UserId, currentRoles.ToArray());
 
-            return true;
+                    if (!removeResult.Succeeded)
+                    {
+                        // Manejar error de remoción (aunque la adición fue exitosa)
+                        throw new Exception("El rol fue añadido, pero el rol anterior no pudo ser removido.");
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                // Manejar el fallo de la adición
+                throw new Exception("Fallo al añadir el usuario al rol especificado.");
+            }
         }
     }
 }

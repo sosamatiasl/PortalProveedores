@@ -5,6 +5,7 @@ using PortalProveedores.Mobile.ViewModels;
 using PortalProveedores.Mobile.Views;
 using ZXing.Net.Maui.Controls;
 using Shiny;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PortalProveedores.Mobile
 {

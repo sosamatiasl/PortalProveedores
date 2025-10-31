@@ -1,6 +1,6 @@
-﻿using Android.Graphics;
-using CommunityToolkit.Maui.Core;
+﻿using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Storage;
+using Microsoft.Maui.Graphics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PortalProveedores.Mobile.Models;
@@ -82,8 +82,8 @@ namespace PortalProveedores.Mobile.ViewModels
                 using var stream = await drawingView.GetImageStream(
                     drawingView.Width,
                     drawingView.Height,
-                    shouldDisposeStream: true,
-                    format: ImageFormat.Png);
+                    Microsoft.Maui.Graphics.ImageFormat.Png,
+                    Colors.White);
 
                 stream.Position = 0;
 

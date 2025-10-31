@@ -22,5 +22,10 @@ namespace PortalProveedores.Domain.Entities.Identity
 
         // Relación N-N con roles
         public virtual ICollection<UsuarioRol> UsuarioRoles { get; set; } = new List<UsuarioRol>();
+
+        /// <summary>
+        /// Tokens de actualización activos asociados a este usuario.
+        /// </summary>
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

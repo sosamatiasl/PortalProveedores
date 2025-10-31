@@ -85,7 +85,7 @@ namespace PortalProveedores.API.Controllers
             // Obtener la IP del cliente
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-            var (token, refreshToken) = await _identityService.LoginAsync(command.Email, command.Password, ipAddress);
+            var (token, refreshToken) = await _identityService.LoginAsync(request.Email, request.Password, ipAddress);
 
             // Devuelve el Access Token y el Refresh Token
             return Ok(new { token, refreshToken });

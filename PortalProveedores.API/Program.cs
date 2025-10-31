@@ -76,6 +76,7 @@ builder.Services.AddScoped<IFileStorageService, AzureBlobStorageService>();
 builder.Services.AddHttpContextAccessor(); // Necesario para CurrentUserService
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<INotificationService, NotificationService>(); // Usamos la simulación
+builder.Services.AddScoped<IJwtGeneratorService, JwtGeneratorService>();
 
 // Abstracción del DbContext
 builder.Services.AddScoped<IApplicationDbContext>(provider =>

@@ -180,4 +180,74 @@ Proyecto: PortalProveedores.FunctionalTests
 Ruta de carpeta: 
 Archivo: EndToEndTests.cs
 Código de error: CS0246
-Descripcion del error: El nombre de tipo 'OrdenCompraItemDto' no existe en el tipo 'CrearOrdenCompraCommand'
+Descripcion del error: El nombre de tipo 'OrdenCompraItemDto' no existe en el tipo 'CrearOrdenCompraCommand',
+
+Error N° 28:
+Proyecto: PortalProveedores.API
+Ruta de carpeta: \Controllers\
+Archivo: AuthController.CS
+Código de error: CS0246
+Descripcion del error: El nombre 'command' no existe en el contexto actual.
+
+Error N° 29:
+Proyecto: PortalProveedores.FuncionalTests
+Ruta de carpeta: 
+Archivo: EnToEndTests.cs
+Código de error: CS0426
+Descripcion del error: El nombre de tipo 'OrdenCompraItemDto' no existe en el tipo 'CrearOrdenCompraCommand'.
+
+Error N° 30:
+Proyecto: PortalProveedores.FuncionalTests
+Ruta de carpeta: 
+Archivo: EnToEndTests.cs
+Código de error: CS1061
+Descripcion del error: "ConciliacionReporteDto" no contiene una definición para "HuboDiscrepanciasCantidad" ni un método de extensión accesible "HuboDiscrepanciasCantidad" que acepte un primer argumento del tipo "ConciliacionReporteDto" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 31:
+Proyecto: PortalProveedores.FuncionalTests
+Ruta de carpeta: 
+Archivo: EnToEndTests.cs
+Código de error: CS0122
+Descripcion del error: 'Program' no es accesible debido a su nivel de protección.
+
+Error N° 32:
+Proyecto: PortalProveedores.FuncionalTests
+Ruta de carpeta: 
+Archivo: EnToEndTests.cs
+Código de error: CS1061
+Descripcion del error: "DbContextOptionsBuilder" no contiene una definición para "UseInMemoryDatabase" ni un método de extensión accesible "UseInMemoryDatabase" que acepte un primer argumento del tipo "DbContextOptionsBuilder" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 33:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: NotificationService.cs
+Código de error: CS0234
+Descripcion del error: El tipo o el nombre del espacio de nombres 'API' no existe en el espacio de nombres 'PortalProveedores' (¿falta alguna referencia de ensamblado?).
+
+Error N° 34:
+Proyecto: PortalProveedores.Infrastructure
+Ruta de carpeta: \Services\
+Archivo: NotificationService.cs
+Código de error: CS0246
+Descripcion del error: El nombre del tipo o del espacio de nombres 'PortalHub' no se encontró (¿falta una directiva using o una referencia de ensamblado?).
+
+Error N° 35:
+Proyecto: PortalProveedores.Mobile
+Ruta de carpeta: 
+Archivo: MauiProgram.cs
+Código de error: CS1061
+Descripcion del error: "MauiAppBuilder" no contiene una definición para "UseShiny" ni un método de extensión accesible "UseShiny" que acepte un primer argumento del tipo "MauiAppBuilder" (¿falta alguna directiva using o una referencia de ensamblado?).
+
+Error N° 36:
+Proyecto: PortalProveedores.Mobile
+Ruta de carpeta: \ViewModels\
+Archivo: RecepcionViewModel.cs
+Código de error: CS1501
+Descripcion del error: Ninguna sobrecarga para el método 'GetImageStream' toma 4 argumentos.
+
+Error N° 37:
+Proyecto: PortalProveedores.Mobile
+Ruta de carpeta: \ViewModels\
+Archivo: RecepcionViewModel.cs
+Código de error: CS1501
+Descripcion del error: Argumento 3: no se puede convertir de 'Microsoft.Maui.Graphics.ImageFormat' a 'System.Threading.CancellationToken'.

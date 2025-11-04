@@ -57,5 +57,10 @@ namespace PortalProveedores.Application.Common.Interfaces
         // Si > 0, el Proveedor facturó de MÁS (requiere Nota de Crédito).
         // Si < 0, el Proveedor facturó de MENOS (requiere Nota de Débito).
         public decimal TotalAjusteNeto { get => TotalAjusteCantidad + TotalAjustePrecio; }
+
+        /// <summary>
+        /// Indica si hubo alguna diferencia entre la cantidad del Remito y la Orden de Compra.
+        /// </summary>
+        public bool HuboDiscrepanciasCantidad { get; set; }
     }
 }

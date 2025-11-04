@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using PortalProveedores.Application.Common.Interfaces;
 using PortalProveedores.Domain.Entities;
 using Microsoft.AspNetCore.SignalR;
-using PortalProveedores.API.Hubs;
 
 namespace PortalProveedores.Infrastructure.Services
 {
@@ -19,19 +18,22 @@ namespace PortalProveedores.Infrastructure.Services
     public class NotificationService : INotificationService
     {
         private readonly ILogger<NotificationService> _logger;
+        private readonly IHubNotificationService _hubNotifier;
 
         // En un caso real, se inyecta IApplicationDbContext para buscar los IDs
         // de Cliente/Proveedor si no vienen en la entidad.
-        private readonly IHubContext<PortalHub> _hubContext; // Inyección de SignalR
+        //private readonly IHubContext<PortalHub> _hubContext; // Inyección de SignalR
         private readonly IApplicationDbContext _context; // Para buscar IDs de entidad
 
         public NotificationService(
             ILogger<NotificationService> logger,
-            IHubContext<PortalHub> hubContext,
+            //IHubContext<PortalHub> hubContext,
+            IHubNotificationService hubNotifier,
             IApplicationDbContext context)
         {
             _logger = logger;
-            _hubContext = hubContext;
+            //_hubContext = hubContext;
+            _hubNotifier = hubNotifier;
             _context = context;
         }
 
@@ -81,7 +83,8 @@ namespace PortalProveedores.Infrastructure.Services
             var message = $"El proveedor ha generado el remito N° {remito.NumeroRemito}. Listo para su recepción.";
 
             // Simulación: Enviar al cliente de forma general.
-            await _hubContext.Clients.All.SendAsync("ReceiveNotification", title, message);
+            //await _hubContext.Clients.All.SendAsync("ReceiveNotification", title, message);
+            await _hubNotifier.NotifyAllAsync("ReceiveNotification", new { title, message });
             _logger.LogInformation($"[SignalR REAL] Remito Generado: Notificación enviada a todos.");
         }
 
@@ -113,7 +116,8 @@ namespace PortalProveedores.Infrastructure.Services
                 var message = $"El remito N° {remito.NumeroRemito} fue recibido por el cliente. Hubo diferencias: {recepcion.HuboDiferencias}.";
 
                 // Simulación: Enviar al cliente de forma general.
-                await _hubContext.Clients.All.SendAsync("ReceiveNotification", title, message);
+                //await _hubContext.Clients.All.SendAsync("ReceiveNotification", title, message);
+                await _hubNotifier.NotifyAllAsync("ReceiveNotification", new { title, message });
                 _logger.LogInformation($"[SignalR REAL] Recepción Remito: Notificación enviada al Proveedor {remito.ProveedorId}.");
             }
         }
@@ -128,7 +132,8 @@ namespace PortalProveedores.Infrastructure.Services
             var message = $"Factura N° {factura.F3_NumeroFactura} cargada. Estado fiscal: {factura.Estado}. Requiere conciliación.";
 
             // Simulación: Enviar al cliente de forma general.
-            await _hubContext.Clients.All.SendAsync("ReceiveNotification", title, message);
+            //await _hubContext.Clients.All.SendAsync("ReceiveNotification", title, message);
+            await _hubNotifier.NotifyAllAsync("ReceiveNotification", new { title, message });
             _logger.LogInformation($"[SignalR REAL] Factura Cargada: Notificación enviada al Cliente {factura.ClienteId}.");
         }
 
@@ -142,7 +147,8 @@ namespace PortalProveedores.Infrastructure.Services
             //return Task.CompletedTask;
 
             // Usa el IUserIdProvider configurado en la API para enviar solo a ese usuario.
-            return _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", titulo, mensaje);
+            //return _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", titulo, mensaje);
+            return _hubNotifier.NotifyAllAsync("ReceiveNotification", new { titulo, mensaje });
         }
     }
 }

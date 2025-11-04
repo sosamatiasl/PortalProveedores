@@ -77,6 +77,7 @@ builder.Services.AddHttpContextAccessor(); // Necesario para CurrentUserService
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<INotificationService, NotificationService>(); // Usamos la simulación
 builder.Services.AddScoped<IJwtGeneratorService, JwtGeneratorService>();
+builder.Services.AddScoped<IHubNotificationService, HubNotificationService>();
 
 // Abstracción del DbContext
 builder.Services.AddScoped<IApplicationDbContext>(provider =>
@@ -146,3 +147,5 @@ app.UseEndpoints(endpoints =>
 });
 
 app.Run();
+
+public partial class Program { } // Necesario para pruebas E2E

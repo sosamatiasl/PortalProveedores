@@ -1,40 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <Shell
     x:Class="PortalProveedores.Mobile.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:PortalProveedores.Mobile"
     xmlns:views="clr-namespace:PortalProveedores.Mobile.Views"
     Shell.FlyoutBehavior="Disabled"
-    Shell.NavBarIsVisible="False">
+    Title="PortalProveedores.Mobile">
 
-    <Shell.ItemTemplate>
-        <DataTemplate>
-            <ShellContent ContentTemplate="{Binding ContentTemplate}" Route="{Binding Route}" />
-        </DataTemplate>
-    </Shell.ItemTemplate>
+    <!--<ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />-->
 
     <ShellContent
-        Title="Login"
-        ContentTemplate="{DataTemplate views:LoginPage}"
-        Route="LoginPage" />
-
-    <TabBar Route="MainPage">
-        <ShellContent
-            Title="Inicio"
-            Icon="home_icon.png"
-            ContentTemplate="{DataTemplate views:MainPage}"
-            Route="MainDashboard" />
-
-        <ShellContent
-            Title="Recibir Remito"
-            Icon="qr_code_icon.png"
-            ContentTemplate="{DataTemplate views:ScanQRPage}"
-            Route="ScanQRPage" />
-
-    </TabBar>
-
-    <Shell.FlyoutFooter>
-        <views:RecepcionPage Shell.TabBarIsVisible="False" Shell.NavBarIsVisible="True"
-            Route="RecepcionPage" />
-    </Shell.FlyoutFooter>
+        Title="Recepción"
+        ContentTemplate="{DataTemplate views:RecepcionPage}"
+        Route="RecepcionPage" />
 
 </Shell>

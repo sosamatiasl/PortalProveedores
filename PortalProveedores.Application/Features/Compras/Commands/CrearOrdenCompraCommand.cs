@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace PortalProveedores.Application.Features.Compras.Commands
 {
-    // DTO para los items
-    public record OrdenCompraItemDto
-    (
-        long ProductoId,
-        decimal Cantidad
-        // La unidad de Medida se toma del catálogo
-    );
+    //// DTO para los items
+    //public record OrdenCompraItemDto
+    //(
+    //    long ProductoId,
+    //    decimal Cantidad
+    //    // La unidad de Medida se toma del catálogo
+    //);
 
     /// <summary>
     /// Crear una nueva Orden de Compra.
@@ -27,5 +27,13 @@ namespace PortalProveedores.Application.Features.Compras.Commands
         public string NumeroOrden { get; set; } = string.Empty;
         public string? Detalles { get; set; }
         public List<OrdenCompraItemDto> Items { get; set; } = new();
+
+        // DTO para los items
+        public record OrdenCompraItemDto
+        (
+            long ProductoId,
+            decimal Cantidad
+        // La unidad de Medida se toma del catálogo
+        );
     }
 }

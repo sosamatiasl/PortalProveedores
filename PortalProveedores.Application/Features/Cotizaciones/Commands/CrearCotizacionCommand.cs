@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace PortalProveedores.Application.Features.Cotizaciones.Commands
 {
-    // DTO para los items
-    public record CotizacionItemDto (
-        long ProductoId,
-        decimal Cantidad
-        // Precio Unitario se toma del catálogo
-    );
+    //// DTO para los items
+    //public record CotizacionItemDto (
+    //    long ProductoId,
+    //    decimal Cantidad
+    //    // Precio Unitario se toma del catálogo
+    //);
 
     /// <summary>
     /// Crear una nueva Cotización.
@@ -25,5 +25,12 @@ namespace PortalProveedores.Application.Features.Cotizaciones.Commands
         public int ValidezDias { get; set; }
         public IFormFile? ArchivoPDF { get; set; } // Opcional por si solo carga items
         public List<CotizacionItemDto> Items { get; set; } = new();
+
+        // DTO para los items
+        public record CotizacionItemDto(
+            long ProductoId,
+            decimal Cantidad
+        // Precio Unitario se toma del catálogo
+        );
     }
 }

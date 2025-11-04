@@ -78,9 +78,9 @@ namespace PortalProveedores.Application.Features.Users.Commands
             var currentRoles = await _identityService.GetUserRolesAsync(request.UserId);
             var removeResult = await _identityService.RemoveUserFromRolesAsync(request.UserId, currentRoles.ToArray());
 
-            if (!removeResult.Succeeded)
+            if (!removeResult)
             {
-                throw new Exception("Error al remover roles anteriores. " + string.Join("; ", removeResult.Errors));
+                throw new Exception("Error al remover roles anteriores. " + string.Join("; " /*, removeResult.Errors*/));
             }
 
             // 7. Añadir el nuevo rol
@@ -93,7 +93,7 @@ namespace PortalProveedores.Application.Features.Users.Commands
                 {
                     removeResult = await _identityService.RemoveUserFromRolesAsync(request.UserId, currentRoles.ToArray());
 
-                    if (!removeResult.Succeeded)
+                    if (!removeResult)
                     {
                         // Manejar error de remoción (aunque la adición fue exitosa)
                         throw new Exception("El rol fue añadido, pero el rol anterior no pudo ser removido.");

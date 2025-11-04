@@ -1,22 +1,19 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PortalProveedores.Mobile.ViewModels
 {
-    // Se usa ObservableObject para notificar cambios a la UI
+    // ObservableObject implementa INotifyPropertyChanged
     public partial class BaseViewModel : ObservableObject
     {
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsNotLoading))]
-        bool isLoading;
+        [NotifyPropertyChangedFor(nameof(IsNotBusy))]
+        bool isBusy;
 
-        public bool IsNotLoading => !isLoading;
-
-        [ObservableProperty]
-        string title = string.Empty;
+        public bool IsNotBusy => !IsBusy;
     }
 }

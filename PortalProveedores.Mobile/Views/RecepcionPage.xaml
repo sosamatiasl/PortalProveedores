@@ -2,66 +2,31 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PortalProveedores.Mobile.ViewModels"
-             xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
-             x:DataType="vm:RecepcionViewModel"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+             xmlns:drawing="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
              x:Class="PortalProveedores.Mobile.Views.RecepcionPage"
-             Title="{Binding Title}">
+             x:DataType="vm:RecepcionViewModel"
+             Title="Recepción de Mercadería">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="15" Spacing="15">
+    <Grid RowDefinitions="*,Auto,Auto">
 
-            <Label Text="{Binding RemitoDetails.NumeroRemito}" FontSize="Title" />
-            <Label Text="{Binding RemitoDetails.NombreProveedor}" FontSize="Medium" />
+        <zxing:CameraBarcodeReaderView Grid.Row="0"
+                                     x:Name="barcodeReader"
+                                     BarcodesDetected="BarcodesDetected" />
 
-            <Label Text="Detalles de Productos a Recibir" FontAttributes="Bold" />
-            <CollectionView ItemsSource="{Binding ItemsRecepcion}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="10" ColumnDefinitions="*, 80, 80" RowDefinitions="Auto">
-                            <VerticalStackLayout Grid.Column="0">
-                                <Label Text="{Binding Descripcion}" FontAttributes="Bold" LineBreakMode="WordWrap" />
-                                <Label Text="{Binding Sku}" FontSize="Small" TextColor="Gray" />
-                            </VerticalStackLayout>
+        <Border Grid.Row="1" Stroke="Gray" StrokeThickness="1" Margin="20" HeightRequest="200">
+            <drawing:DrawingView
+                x:Name="MyDrawingView"
+                LineColor="Black"
+                LineWidth="5"
+                BackgroundColor="White" />
+        </Border>
 
-                            <Label Grid.Column="1" Text="{Binding CantidadSolicitada}" VerticalOptions="Center" HorizontalOptions="Center" />
-
-                            <Entry Grid.Column="2" 
-                                Text="{Binding CantidadARecibir}" 
-                                Keyboard="Numeric"
-                                Placeholder="Recibida" 
-                                HorizontalTextAlignment="Center" />
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-
-            <BoxView HeightRequest="1" Color="LightGray" />
-
-            <Label Text="Confirmación de Recepción" FontAttributes="Bold" />
-            <Entry Placeholder="Nombre Completo del Receptor (Firma)" Text="{Binding NombreReceptor}" />
-
-            <Label Text="Firma de Conformidad" />
-            <Border StrokeThickness="1" Stroke="DarkGray" HeightRequest="200" Padding="0">
-                <toolkit:DrawingView 
-                    x:Name="SignaturePad"
-                    LineColor="Black"
-                    LineWidth="5"
-                    BackgroundColor="White"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="FillAndExpand" />
-            </Border>
-
-            <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
-                <Button Text="Limpiar Firma" Command="{Binding LimpiarFirmaCommand}" 
-                        CommandParameter="{x:Reference SignaturePad}" StyleClass="Secondary" />
-
-                <Button Text="Confirmar Recepción" 
-                        Command="{Binding ConfirmarRecepcionCommand}" 
-                        CommandParameter="{x:Reference SignaturePad}"
-                        IsEnabled="{Binding IsNotLoading}" />
-            </HorizontalStackLayout>
-
-            <ActivityIndicator IsRunning="{Binding IsLoading}" HorizontalOptions="Center" />
-        </VerticalStackLayout>
-    </ScrollView>
+        <Button Grid.Row="2" 
+                Text="Confirmar Recepción y Enviar Firma"
+                Margin="20"
+                IsEnabled="{Binding IsNotBusy}"
+                Command="{Binding ConfirmarRecepcionCommand}"
+                CommandParameter="{x:Reference MyDrawingView}" />
+    </Grid>
 </ContentPage>

@@ -83,7 +83,8 @@ namespace PortalProveedores.Infrastructure.Services
                 NumeroFactura = factura.F3_NumeroFactura ?? "N/A",
                 ClienteId = factura.ClienteId,
                 ProveedorId = factura.ProveedorId,
-                ItemsConciliados = itemsConciliados
+                ItemsConciliados = itemsConciliados,
+                HuboDiscrepanciasCantidad = itemsConciliados.Any(i => i.DiferenciaCantidad != 0)
             };
         }
     }

@@ -37,6 +37,7 @@ namespace PortalProveedores.FunctionalTests
 
         // IDs que se generarán en la prueba
         private long _ordenCompraId;
+        private long _cotizacionId;
         private long _remitoId;
         private string _qrToken = string.Empty;
 
@@ -75,7 +76,7 @@ namespace PortalProveedores.FunctionalTests
                 ProveedorId = 1,
                 Items = new List<CrearOrdenCompraCommand.OrdenCompraItemDto>
             {
-                new() { Sku = "SKU001", Cantidad = 10, Descripcion = "Tornillos T10" }
+                new(ProductoId: 10, Cantidad: 50)
             }
             };
 
@@ -102,7 +103,7 @@ namespace PortalProveedores.FunctionalTests
                 OrdenCompraId = _ordenCompraId,
                 Items = new List<CrearCotizacionCommand.CotizacionItemDto>
             {
-                new() { Sku = "SKU001", Cantidad = 10, PrecioUnitario = 5.00m, Descripcion = "Tornillos T10" }
+                new(ProductoId: 10, Cantidad: 50)
             }
             };
             var cotizacionResponse = await vendorClient.PostAsJsonAsync("/api/cotizaciones", cotizacionCommand);
@@ -113,7 +114,7 @@ namespace PortalProveedores.FunctionalTests
 
             // 2. Aceptar Cotización (Actúa como Administrativo Cliente, Rol A)
             var clientAdmin = GetClientWithAuth(ClienteAdminToken);
-            var acceptCommand = new AceptarCotizacionCommand { CotizacionId = cotizacionId };
+            var acceptCommand = new AceptarCotizacionesCommand { CotizacionIdsAAceptar = new() { cotizacionId } };
             var acceptResponse = await clientAdmin.PostAsJsonAsync($"/api/cotizaciones/{cotizacionId}/aceptar", acceptCommand);
             acceptResponse.EnsureSuccessStatusCode();
         }
@@ -126,9 +127,9 @@ namespace PortalProveedores.FunctionalTests
             var vendorClient = GetClientWithAuth(ProveedorVendedorToken);
 
             // 1. Generar Remito
-            var remitoCommand = new CreateRemitoCommand
+            var remitoCommand = new CrearRemitoCommand
             {
-                OrdenCompraId = _ordenCompraId,
+                CotizacionIds = new() { _cotizacionId },
                 // Esto asume que el Handler encuentra la cotización aceptada.
             };
             var remitoResponse = await vendorClient.PostAsJsonAsync("/api/remitos", remitoCommand);

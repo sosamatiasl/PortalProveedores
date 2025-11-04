@@ -2,44 +2,20 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PortalProveedores.Mobile.ViewModels"
-             x:DataType="vm:LoginViewModel"
              x:Class="PortalProveedores.Mobile.Views.LoginPage"
-             Title="{Binding Title}"
-             Shell.NavBarIsVisible="False">
+             x:DataType="vm:LoginViewModel"
+             Title="Inicio de Sesión">
 
-    <VerticalStackLayout Padding="30" VerticalOptions="Center" Spacing="15">
+    <VerticalStackLayout Padding="30" Spacing="15" VerticalOptions="Center">
+        <Entry Placeholder="Usuario" />
+        <Entry Placeholder="Contraseña" IsPassword="True" />
 
-        <Label 
-            Text="Portal de Proveedores"
-            FontSize="Header"
-            HorizontalOptions="Center" />
+        <Button Text="Ingresar" 
+                Command="{Binding LoginCommand}" 
+                IsEnabled="{Binding IsNotBusy}" />
 
-        <Frame Padding="10" CornerRadius="10">
-            <VerticalStackLayout Spacing="10">
-                <Entry
-                    Placeholder="Email"
-                    Text="{Binding Email}"
-                    Keyboard="Email"
-                    IsEnabled="{Binding IsNotLoading}" />
-
-                <Entry
-                    Placeholder="Contraseña"
-                    Text="{Binding Password}"
-                    IsPassword="True"
-                    IsEnabled="{Binding IsNotLoading}" />
-            </VerticalStackLayout>
-        </Frame>
-
-        <Button 
-            Text="Iniciar Sesión"
-            Command="{Binding LoginCommand}"
-            IsEnabled="{Binding IsNotLoading}"
-            HorizontalOptions="Fill" />
-
-        <ActivityIndicator
-            IsRunning="{Binding IsLoading}"
-            HorizontalOptions="Center" />
-
+        <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                           IsVisible="{Binding IsBusy}" />
     </VerticalStackLayout>
 
 </ContentPage>

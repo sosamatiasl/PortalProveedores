@@ -4,9 +4,10 @@ namespace PortalProveedores.Mobile.Views;
 
 public partial class LoginPage : ContentPage
 {
-	public LoginPage(LoginViewModel viewModel)
-	{
-		InitializeComponent();
-		BindingContext = viewModel;
-	}
+    // Constructor modificado para DI (aunque el de App.xaml.cs usa AuthService)
+    public LoginPage(LoginViewModel viewModel)
+    {
+        InitializeComponent();
+        BindingContext = viewModel;
+    }
 }

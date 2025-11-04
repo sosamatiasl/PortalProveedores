@@ -12,8 +12,8 @@ using PortalProveedores.Infrastructure.Persistence;
 namespace PortalProveedores.Infrastructure.Migrations
 {
     [DbContext(typeof(PortalProveedoresDbContext))]
-    [Migration("20251029183215_F4_AgregaRemitosYQR")]
-    partial class F4_AgregaRemitosYQR
+    [Migration("20251104190501_InitialCreation")]
+    partial class InitialCreation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -226,6 +226,9 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Property<decimal>("PrecioUnitario")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<long>("ProductoId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Sku")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -233,6 +236,8 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CotizacionId");
+
+                    b.HasIndex("ProductoId");
 
                     b.ToTable("CotizacionItems", (string)null);
                 });
@@ -266,6 +271,9 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Property<string>("CAE")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("ClienteId")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("ConsistenciaCuit")
                         .HasColumnType("bit");
 
@@ -275,11 +283,59 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Property<string>("CuitEmisor")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("EsConciliadaOK")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EsValidaAFIP")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
                     b.Property<int>("EstadoProcesamiento")
                         .HasColumnType("int");
 
                     b.Property<int>("EstadoValidacionAFIP")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("F10_VencimientoCAE")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("F11_ObservacionesAFIP")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("F1_TipoFactura")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("F2_PuntoVenta")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("F3_NumeroFactura")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("F4_FechaEmision")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("F5_MontoTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("F6_MontoIVA")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("F7_ProveedorCUIT")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("F8_ClienteCUIT")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("F9_CAE")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaCarga")
                         .HasColumnType("datetime2");
@@ -304,17 +360,70 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalConImpuestos")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalImpuestos")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalSinImpuestos")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Facturas");
+                    b.ToTable("Facturas", (string)null);
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.FacturaDetalle", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Cantidad")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FacturaId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("PrecioUnitario")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FacturaId");
+
+                    b.ToTable("FacturaDetalles", (string)null);
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.FacturaRemitos", b =>
+                {
+                    b.Property<long>("FacturaId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RemitoId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("FacturaId", "RemitoId");
+
+                    b.HasIndex("RemitoId");
+
+                    b.ToTable("FacturaRemitos", (string)null);
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.ApplicationRole", b =>
@@ -451,6 +560,41 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.ToTable("Usuarios", (string)null);
                 });
 
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RemoteIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Revoked")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens", (string)null);
+                });
+
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.UsuarioRol", b =>
                 {
                     b.Property<string>("UserId")
@@ -464,6 +608,54 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UsuarioRoles", (string)null);
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.NotaDebitoCredito", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ClienteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Detalle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FacturaId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("MontoAjuste")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Motivo")
+                        .HasColumnType("int");
+
+                    b.Property<long>("ProveedorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsuarioCreadorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("FacturaId");
+
+                    b.HasIndex("ProveedorId");
+
+                    b.ToTable("NotasDebitoCredito", (string)null);
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.OrdenCompra", b =>
@@ -522,6 +714,9 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Property<long>("OrdenCompraId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("ProductoId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Sku")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -534,7 +729,81 @@ namespace PortalProveedores.Infrastructure.Migrations
 
                     b.HasIndex("OrdenCompraId");
 
+                    b.HasIndex("ProductoId");
+
                     b.ToTable("OrdenCompraItems", (string)null);
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Producto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("ClienteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("UnidadMedida")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId", "Sku")
+                        .IsUnique();
+
+                    b.ToTable("CatalogoProductos", (string)null);
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.ProductoPrecio", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("FechaUltimaModificacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaVigenciaDesde")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaVigenciaHasta")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PrecioAcordado")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<long>("ProductoId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ProveedorId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProveedorId");
+
+                    b.HasIndex("ProductoId", "ProveedorId")
+                        .IsUnique();
+
+                    b.ToTable("CatalogoProductoPrecios", (string)null);
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Proveedor", b =>
@@ -559,6 +828,80 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Proveedores", (string)null);
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Recepcion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("DetalleDiferencias")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FechaRecepcion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FirmaRecepcionista_URL")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirmaTransportista_URL")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("HuboDiferencias")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("RemitoId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UsuarioRecepcionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RemitoId")
+                        .IsUnique();
+
+                    b.HasIndex("UsuarioRecepcionId");
+
+                    b.ToTable("Recepciones", (string)null);
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.RecepcionDetalle", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("CantidadDeclarada")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CantidadRecibida")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("DescripcionProducto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdProducto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("RecepcionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecepcionId");
+
+                    b.ToTable("RecepcionDetalles", (string)null);
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Remito", b =>
@@ -695,7 +1038,15 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PortalProveedores.Domain.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.Navigation("Cotizacion");
+
+                    b.Navigation("Producto");
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.CotizacionRemitos", b =>
@@ -717,6 +1068,36 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Navigation("Remito");
                 });
 
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.FacturaDetalle", b =>
+                {
+                    b.HasOne("PortalProveedores.Domain.Entities.Factura", "Factura")
+                        .WithMany("Detalles")
+                        .HasForeignKey("FacturaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Factura");
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.FacturaRemitos", b =>
+                {
+                    b.HasOne("PortalProveedores.Domain.Entities.Factura", "Factura")
+                        .WithMany("FacturaRemitos")
+                        .HasForeignKey("FacturaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PortalProveedores.Domain.Entities.Remito", "Remito")
+                        .WithMany()
+                        .HasForeignKey("RemitoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Factura");
+
+                    b.Navigation("Remito");
+                });
+
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.ApplicationUser", b =>
                 {
                     b.HasOne("PortalProveedores.Domain.Entities.Cliente", "Cliente")
@@ -730,6 +1111,17 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Navigation("Cliente");
 
                     b.Navigation("Proveedor");
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.RefreshToken", b =>
+                {
+                    b.HasOne("PortalProveedores.Domain.Entities.Identity.ApplicationUser", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.UsuarioRol", b =>
@@ -749,6 +1141,33 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Navigation("Rol");
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.NotaDebitoCredito", b =>
+                {
+                    b.HasOne("PortalProveedores.Domain.Entities.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("PortalProveedores.Domain.Entities.Factura", "Factura")
+                        .WithMany()
+                        .HasForeignKey("FacturaId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("PortalProveedores.Domain.Entities.Proveedor", "Proveedor")
+                        .WithMany()
+                        .HasForeignKey("ProveedorId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Factura");
+
+                    b.Navigation("Proveedor");
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.OrdenCompra", b =>
@@ -778,7 +1197,75 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PortalProveedores.Domain.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.Navigation("OrdenCompra");
+
+                    b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Producto", b =>
+                {
+                    b.HasOne("PortalProveedores.Domain.Entities.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.ProductoPrecio", b =>
+                {
+                    b.HasOne("PortalProveedores.Domain.Entities.Producto", "Producto")
+                        .WithMany("PreciosPorProveedor")
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PortalProveedores.Domain.Entities.Proveedor", "Proveedor")
+                        .WithMany()
+                        .HasForeignKey("ProveedorId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Producto");
+
+                    b.Navigation("Proveedor");
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Recepcion", b =>
+                {
+                    b.HasOne("PortalProveedores.Domain.Entities.Remito", "Remito")
+                        .WithOne("Recepcion")
+                        .HasForeignKey("PortalProveedores.Domain.Entities.Recepcion", "RemitoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("PortalProveedores.Domain.Entities.Identity.ApplicationUser", "UsuarioRecepcion")
+                        .WithMany()
+                        .HasForeignKey("UsuarioRecepcionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Remito");
+
+                    b.Navigation("UsuarioRecepcion");
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.RecepcionDetalle", b =>
+                {
+                    b.HasOne("PortalProveedores.Domain.Entities.Recepcion", "Recepcion")
+                        .WithMany("Detalles")
+                        .HasForeignKey("RecepcionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recepcion");
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Remito", b =>
@@ -816,6 +1303,13 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Factura", b =>
+                {
+                    b.Navigation("Detalles");
+
+                    b.Navigation("FacturaRemitos");
+                });
+
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.ApplicationRole", b =>
                 {
                     b.Navigation("UsuarioRoles");
@@ -823,6 +1317,8 @@ namespace PortalProveedores.Infrastructure.Migrations
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.ApplicationUser", b =>
                 {
+                    b.Navigation("RefreshTokens");
+
                     b.Navigation("UsuarioRoles");
                 });
 
@@ -833,11 +1329,23 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Producto", b =>
+                {
+                    b.Navigation("PreciosPorProveedor");
+                });
+
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Recepcion", b =>
+                {
+                    b.Navigation("Detalles");
+                });
+
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Remito", b =>
                 {
                     b.Navigation("CotizacionRemitos");
 
                     b.Navigation("QRCodes");
+
+                    b.Navigation("Recepcion");
                 });
 #pragma warning restore 612, 618
         }

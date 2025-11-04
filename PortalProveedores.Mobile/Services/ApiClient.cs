@@ -20,7 +20,7 @@ namespace PortalProveedores.Mobile.Services
         private readonly HttpClient _httpClient;
 
         // URL Base de tu API (debe leerse de appsettings o configuración)
-        private const string BaseApiUrl = "https://tu-api.com/api/";
+        private const string BaseApiUrl = "https://10.0.2.2:5153/api/";
 
         public ApiClient()
         {

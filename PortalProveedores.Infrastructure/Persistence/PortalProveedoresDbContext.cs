@@ -281,6 +281,9 @@ namespace PortalProveedores.Infrastructure.Persistence
                 b.ToTable("Facturas");
                 b.HasKey(f => f.Id);
 
+                b.Property(f => f.TotalConImpuestos).HasPrecision(18, 2);
+                b.Property(f => f.TotalImpuestos).HasPrecision(18, 2);
+                b.Property(f => f.TotalSinImpuestos).HasPrecision(18, 2);
                 b.Property(f => f.F5_MontoTotal).HasColumnType("decimal(18,2)");
                 b.Property(f => f.F6_MontoIVA).HasColumnType("decimal(18,2)");
 

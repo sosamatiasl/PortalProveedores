@@ -5,6 +5,7 @@ using ZXing.Net.Maui.Controls;
 using PortalProveedores.Mobile.Services;
 using PortalProveedores.Mobile.ViewModels;
 using PortalProveedores.Mobile.Views;
+
 namespace PortalProveedores.Mobile
 {
     public static class MauiProgram

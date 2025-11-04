@@ -12,6 +12,7 @@ using MediatR;
 using PortalProveedores.Application.Common.Behaviours;
 using PortalProveedores.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using PortalProveedores.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -38,6 +39,9 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     .AddDefaultTokenProviders(); // Habilita generación de tokens para reset de password, etc.
 
 // 3. Configurar Autenticación (JWT y Externa)
+// Añade Registro de servicios de la capa de infraestructura
+//builder.Services.AddInfrastructure();
+
 builder.Services.AddAuthentication(options =>
 {
     // El esquema por defecto es JWT
@@ -78,6 +82,10 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<INotificationService, NotificationService>(); // Usamos la simulación
 builder.Services.AddScoped<IJwtGeneratorService, JwtGeneratorService>();
 builder.Services.AddScoped<IHubNotificationService, HubNotificationService>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddScoped<IConciliacionService, ConciliacionService>();
+builder.Services.AddScoped<IOCRService, OCRService>();
+builder.Services.AddScoped<IAFIPService, AFIPService>();
 
 // Abstracción del DbContext
 builder.Services.AddScoped<IApplicationDbContext>(provider =>
@@ -128,6 +136,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Usar routing
+app.UseRouting();
 
 // Usar CORS
 app.UseCors("AllowSpecificOrigins");

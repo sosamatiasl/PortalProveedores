@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PortalProveedores.API.Models;
 using PortalProveedores.Application.Common.Interfaces;
 using PortalProveedores.Application.Features.Auth.Commands;
+using PortalProveedores.Application.Models;
 using PortalProveedores.Domain.Entities.Identity;
 using PortalProveedores.Infrastructure.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -19,19 +20,22 @@ namespace PortalProveedores.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly PortalProveedores.Application.Common.Interfaces.IJwtGeneratorService _jwtGenerator;
         private readonly IIdentityService _identityService; // Inyectar
+        private readonly IAuthService _authService;
 
         public AuthController(
             IMediator mediator,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             PortalProveedores.Application.Common.Interfaces.IJwtGeneratorService jwtGenerator,
-            IIdentityService identityService)
+            IIdentityService identityService,
+            IAuthService authService)
         {
             _mediator = mediator;
             _signInManager = signInManager;
             _userManager = userManager;
             _jwtGenerator = jwtGenerator;
             _identityService = identityService;
+            _authService = authService;
         }
 
         /// <summary>
@@ -53,17 +57,47 @@ namespace PortalProveedores.API.Controllers
             return Ok(result);
         }
 
+        // Endpoint de Registro (solo para DEVELOPMENT)
+        [HttpPost("Register")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> Register([FromBody] Application.Models.LoginRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _authService.Register(request.Username, request.Password);
+                return StatusCode(201, new { message = "Usuario registrado exitosamente." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al registrar usuario.", details = ex.Message });
+            }
+        }
+
         // DTO solo para el login
         public record LoginDto(string Email, string Password);
 
         /// <summary>
         /// Inicia sesión con email y password.
         /// </summary>
-        [HttpPost("login")]
-        [ProducesResponseType(typeof(AuthResult), StatusCodes.Status200OK)]
+        [HttpPost("Login")]
+        //[ProducesResponseType(typeof(AuthResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Login([FromBody] LoginDto request)
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Login([FromBody] Application.Models.LoginRequest request)
         {
+            /*
             //var user = await _userManager.FindByEmailAsync(request.Email);
             //if (user == null || !user.Activo)
             //{
@@ -82,13 +116,33 @@ namespace PortalProveedores.API.Controllers
 
             //return Ok(new AuthResult(true, token, user.Id, roles, null));
 
-            // Obtener la IP del cliente
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            //// Obtener la IP del cliente
+            //var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-            var (token, refreshToken) = await _identityService.LoginAsync(request.Email, request.Password, ipAddress);
+            //var (token, refreshToken) = await _identityService.LoginAsync(request.Email, request.Password, ipAddress);
 
-            // Devuelve el Access Token y el Refresh Token
-            return Ok(new { token, refreshToken });
+            //// Devuelve el Access Token y el Refresh Token
+            //return Ok(new { token, refreshToken });
+            */
+
+            try
+            {
+                var response = await _authService.Login(request);
+                return Ok(response);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized(new { message = "Credenciales inválidas." });
+            }
+            catch (InvalidOperationException ex) // Para errores como "usuario ya existe" en Register si se reusa
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Loggear el error real para depuración
+                return StatusCode(500, new { message = "Ocurrió un error interno en el servidor.", details = ex.Message });
+            }
         }
 
         [HttpPost("refresh")]

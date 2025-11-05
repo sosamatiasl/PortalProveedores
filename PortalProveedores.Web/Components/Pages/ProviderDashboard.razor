@@ -1,0 +1,75 @@
+﻿@page "/dashboard"
+@attribute [Authorize(Roles = "Provider")] // Solo el rol "Provider"
+
+@using Microsoft.AspNetCore.Authorization
+@using PortalProveedores.Application.Models
+@using PortalProveedores.Web.Services
+@inject IOrderService OrderService
+
+<PageTitle>Dashboard Proveedor</PageTitle>
+
+<h3>Mis Órdenes Pendientes</h3>
+<hr />
+
+@if (myOrders == null)
+{
+    <p>Cargando órdenes...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID Orden</th>
+                <th>Monto</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in myOrders)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.Total.ToString("C")</td>
+                    <td>@order.Status</td>
+                    <td>
+                        @if (order.Status != "Pagada")
+                        {
+                            <button class="btn btn-success" @onclick="() => ConfirmPayment(order.OrderId)">
+                                Confirmar Pago Recibido
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<OrderSummaryDto>? myOrders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        myOrders = await OrderService.GetMyOrders();
+    }
+
+    private async Task ConfirmPayment(int orderId)
+    {
+        try
+        {
+            await OrderService.ConfirmPayment(orderId);
+            await LoadOrders(); // Recargar la lista
+        }
+        catch (Exception ex)
+        {
+            // Manejar error
+        }
+    }
+}

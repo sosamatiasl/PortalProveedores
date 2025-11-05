@@ -86,6 +86,7 @@
 		<PackageReference Include="Shiny.Core" Version="3.3.4" />
 		<PackageReference Include="Shiny.Hosting.Maui" Version="3.3.4" />
 		<PackageReference Include="Shiny.Jobs" Version="3.3.4" />
+		<PackageReference Include="ZXing.Net.Maui" Version="0.4.0" />
 		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.4.0" />
 	</ItemGroup>
 
@@ -96,6 +97,12 @@
 	  <MauiXaml Update="Views\RecepcionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Update="Microsoft.AspNetCore.App">
+			<ExcludeAssets>Runtime</ExcludeAssets>
+		</FrameworkReference>
 	</ItemGroup>
 
 </Project>

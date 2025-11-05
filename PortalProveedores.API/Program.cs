@@ -75,7 +75,6 @@ builder.Services.AddAuthentication(options =>
     });
 
 // 4. Inyección de Dependencias de los servicios propios
-builder.Services.AddScoped<IJwtGeneratorService, JwtGeneratorService>();
 builder.Services.AddScoped<IFileStorageService, AzureBlobStorageService>();
 builder.Services.AddHttpContextAccessor(); // Necesario para CurrentUserService
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();

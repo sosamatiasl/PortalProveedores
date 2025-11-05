@@ -1,0 +1,52 @@
+﻿@page "/login"
+@layout MainLayout
+@using PortalProveedores.Application.Models
+@using PortalProveedores.Web.Components.Layout
+@using PortalProveedores.Web.Services
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Login</PageTitle>
+
+<h1>Iniciar Sesión</h1>
+<hr />
+
+<EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">@errorMessage</div>
+    }
+
+    <div class="form-group mb-2">
+        <label>Usuario:</label>
+        <InputText @bind-Value="loginModel.Username" class="form-control" />
+    </div>
+    <div class="form-group mb-2">
+        <label>Contraseña:</label>
+        <InputText @bind-Value="loginModel.Password" type="password" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginRequest loginModel = new LoginRequest();
+    private string errorMessage = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            errorMessage = string.Empty;
+            await AuthService.Login(loginModel);
+            Navigation.NavigateTo("/"); // Redirigir al inicio
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+}

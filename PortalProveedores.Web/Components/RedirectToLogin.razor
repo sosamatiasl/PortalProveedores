@@ -1,0 +1,22 @@
+﻿@inject NavigationManager Navigation
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // La NavigationException es lanzada aquí para detener el renderizado.
+        // La envolvemos en try/catch para que el código posterior no falle,
+        // aunque es una práctica estándar en Blazor Server para redirecciones.
+        try
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Microsoft.AspNetCore.Components.NavigationException)
+        {
+            ;
+            // Silenciar la excepción. La redirección ya ha sido enviada al navegador.
+            // Si no se atrapa, se propagará al componente padre y podría causar problemas.
+        }
+
+        await base.OnInitializedAsync();
+    }
+}

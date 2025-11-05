@@ -1,0 +1,50 @@
+﻿@page "/providers/create"
+@attribute [Authorize] // Solo usuarios logueados pueden ver esto
+
+@using Microsoft.AspNetCore.Authorization
+@using PortalProveedores.Application.Models
+@using PortalProveedores.Web.Services
+@inject IProviderService ProviderService
+@inject NavigationManager Navigation
+
+<PageTitle>Registrar Proveedor</PageTitle>
+
+<h3>Registrar Nuevo Proveedor (en mi sistema)</h3>
+<hr />
+
+<EditForm Model="@providerModel" OnValidSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group mb-2">
+        <label>Nombre Compañía:</label>
+        <InputText @bind-Value="providerModel.CompanyName" class="form-control" />
+    </div>
+    <div class="form-group mb-2">
+        <label>CUIT/Tax ID:</label>
+        <InputText @bind-Value="providerModel.TaxId" class="form-control" />
+    </div>
+    <div class="form-group mb-2">
+        <label>Email Contacto:</label>
+        <InputText @bind-Value="providerModel.Email" class="form-control" />
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Guardar Proveedor</button>
+</EditForm>
+
+@code {
+    private CreateProviderRequest providerModel = new CreateProviderRequest();
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            await ProviderService.CreateProvider(providerModel);
+            Navigation.NavigateTo("/"); // Redirigir
+        }
+        catch (Exception ex)
+        {
+            // Manejar error
+        }
+    }
+}

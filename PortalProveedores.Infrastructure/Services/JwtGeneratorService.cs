@@ -28,7 +28,7 @@ namespace PortalProveedores.Infrastructure.Services
             UserManager<ApplicationUser> userManager,
             IApplicationDbContext context)
         {
-            config = _configuration;
+            _configuration = config;
             _userManager = userManager;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
             _issuer = config["Jwt:Issuer"]!;

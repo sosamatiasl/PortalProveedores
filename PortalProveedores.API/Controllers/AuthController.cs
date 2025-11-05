@@ -18,24 +18,21 @@ namespace PortalProveedores.API.Controllers
         private readonly IMediator _mediator;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly PortalProveedores.Application.Common.Interfaces.IJwtGeneratorService _jwtGenerator;
-        private readonly IIdentityService _identityService; // Inyectar
-        private readonly IAuthService _authService;
+        private readonly IJwtGeneratorService _jwtGenerator;
+        private readonly IIdentityService _identityService;
 
         public AuthController(
             IMediator mediator,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
-            PortalProveedores.Application.Common.Interfaces.IJwtGeneratorService jwtGenerator,
-            IIdentityService identityService,
-            IAuthService authService)
+            IJwtGeneratorService jwtGenerator,
+            IIdentityService identityService)
         {
             _mediator = mediator;
             _signInManager = signInManager;
             _userManager = userManager;
             _jwtGenerator = jwtGenerator;
             _identityService = identityService;
-            _authService = authService;
         }
 
         /// <summary>
@@ -71,7 +68,10 @@ namespace PortalProveedores.API.Controllers
 
             try
             {
-                await _authService.Register(request.Username, request.Password);
+                // ---> TODO: MAL IMPLEMENTADO <---
+                // await _authService.Register(request.Username, request.Password);
+                // _authService no tiene que aparecer en el API Controller
+
                 return StatusCode(201, new { message = "Usuario registrado exitosamente." });
             }
             catch (InvalidOperationException ex)
@@ -81,6 +81,60 @@ namespace PortalProveedores.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error al registrar usuario.", details = ex.Message });
+            }
+        }
+
+        // POST api/Authentication/RegisterClient
+        [HttpPost("RegisterClient")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> RegisterClient([FromBody] RegisterClientRequest request)
+        {
+            // Nota: En IAuthService, necesitará un método "RegisterClient"
+            // que cree el ApplicationUser y también la entidad Cliente asociada.
+            var command = new RegisterClientCommand
+            {
+                Username = request.Username,
+                CompanyName = request.CompanyName,
+                Email = request.Email,
+                Password = request.Password
+            };
+
+            try
+            {
+                var result = await _mediator.Send(command);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new {
+                        message = "Falló el registro del nuevo cliente.",
+                        errors = result.Errors.Select(e => e.Description).ToList()
+                    });
+                }
+
+                return StatusCode(201, new { message = "Cliente registrado exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Ocurrió un error interno en el servidor.", details = ex.Message });
+            }
+        }
+
+        // POST api/Authentication/RegisterProvider
+        [HttpPost("RegisterProvider")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> RegisterProvider([FromBody] RegisterProviderRequest request)
+        {
+            // Similar al anterior, pero para Proveedores
+            try
+            {
+                // await _authService.RegisterProvider(request);
+                return StatusCode(201, new { message = "Proveedor registrado exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
 

@@ -11,7 +11,7 @@ namespace PortalProveedores.Application.Common.Interfaces
     /// </summary>
     public interface ICurrentUserService
     {
-        string? UserId { get; }
+        long? UserId { get; }
         long? ClienteId { get; }
         long? ProveedorId { get; }
         bool IsInRole(string roleName);

@@ -14,17 +14,27 @@ namespace PortalProveedores.Application.Common.Interfaces
     {
         // ... (Métodos de Login/Registro existentes) ...
 
-        Task<List<ApplicationUser>> GetUsersInRoleAsync(string? roleName);
-        Task<ApplicationUser?> GetUserByIdAsync(string userId);
-        Task<IList<string>> GetUserRolesAsync(string userId);
+        Task<List<ApplicationUser>> GetUsersInRoleAsync(long roleNumber);
+        Task<ApplicationUser?> GetUserByIdAsync(long userId);
+        Task<IList<long>> GetUserRolesAsync(long userId);
         //Task<IdentityResult> RemoveUserFromRolesAsync(string userId, string[] roles);
-        Task<bool> RemoveUserFromRolesAsync(string userId, string[] roleNames);
-        Task<bool> AddUserToRoleAsync(string userId, string roleName);
+        Task<bool> RemoveUserFromRolesAsync(long userId, long[] roleNumbers);
+        Task<bool> AddUserToRoleAsync(long userId, long roleId);
+        /// <summary>
+        /// Obtiene el ID numérico (long) de un rol a partir de su nombre (string).
+        /// </summary>
+        Task<long?> GetRoleIdByNameAsync(string roleName);
+        /// <summary>
+        /// Obtiene los nombres de los roles (string) a partir de una lista de IDs (long).
+        /// </summary>
+        Task<IEnumerable<string>> GetRoleNamesByIdsAsync(IEnumerable<long> roleIds);
+
 
         // Seguridad y gestión de tokens
         Task<(string token, string refreshToken)> LoginAsync(string email, string password, string ipAddress);
-        Task<string> GenerateAndStoreRefreshTokenAsync(string userId, string ipAddress);
+        Task<string> GenerateAndStoreRefreshTokenAsync(long userId, string ipAddress);
         Task<ApplicationUser?> ValidateRefreshTokenAsync(string token, string ipAddress);
         Task<bool> RevokeRefreshTokenAsync(string token, string ipAddress);
+
     }
 }

@@ -13,7 +13,7 @@ namespace PortalProveedores.Domain.Entities
         public long RemitoId { get; set; }
         public Remito Remito { get; set; } = null!;
 
-        public string UsuarioRecepcionId { get; set; } = string.Empty;
+        public long? UsuarioRecepcionId { get; set; }
         public ApplicationUser UsuarioRecepcion { get; set; } = null!; // Usuario con Rol "D"
 
         public DateTime FechaRecepcion { get; set; }

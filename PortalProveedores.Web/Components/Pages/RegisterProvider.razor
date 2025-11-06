@@ -1,0 +1,130 @@
+﻿@page "/register-provider"
+@using PortalProveedores.Application.Models
+@using PortalProveedores.Web.Components.Layout
+@using PortalProveedores.Web.Services
+@layout EmptyLayout
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Registro de Proveedor</PageTitle>
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="max-width: 500px; width: 100%;">
+        <h3 class="card-title text-center mb-4 text-primary">Regístrate como Proveedor</h3>
+        <hr />
+
+        @* Formulario de Registro *@
+        <EditForm Model="@registerModel" OnValidSubmit="@HandleRegistration" FormName="registerProviderForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            @* Muestra el mensaje de estado *@
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <div class="alert @statusClass" role="alert">
+                    @statusMessage
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Usuario (Login):</label>
+                    <InputText @bind-Value="registerModel.Username" class="form-control" />
+                    <ValidationMessage For="() => registerModel.Username" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Email:</label>
+                    <InputText @bind-Value="registerModel.Email" class="form-control" />
+                    <ValidationMessage For="() => registerModel.Email" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label>Razón Social:</label>
+                <InputText @bind-Value="registerModel.RazonSocial" class="form-control" />
+                <ValidationMessage For="() => registerModel.RazonSocial" />
+            </div>
+
+            <div class="mb-3">
+                <label>CUIT:</label>
+                <InputText @bind-Value="registerModel.CUIT" class="form-control" />
+                <ValidationMessage For="() => registerModel.CUIT" />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label>Contraseña:</label>
+                    <InputText @bind-Value="registerModel.Password" type="password" class="form-control" />
+                    <ValidationMessage For="() => registerModel.Password" />
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label>Confirmar Contraseña:</label>
+                    @* Asumimos que RegisterProviderRequest tiene una propiedad ConfirmPassword para validación *@
+                    <InputText @bind-Value="registerModel.ConfirmPassword" type="password" class="form-control" />
+                    <ValidationMessage For="() => registerModel.ConfirmPassword" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-register w-100" disabled="@isProcessing">
+                @if (isProcessing)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">Procesando...</span>
+                }
+                else
+                {
+                    <span>Registrarse</span>
+                }
+            </button>
+        </EditForm>
+
+        <p class="text-center mt-3">
+            ¿Ya tienes una cuenta?
+            <a href="/login">Inicia Sesión</a>
+        </p>
+
+    </div>
+</div>
+
+@code {
+    private RegisterProviderRequest registerModel = new RegisterProviderRequest();
+    private string statusMessage = string.Empty;
+    private string statusClass = "alert-danger";
+    private bool isProcessing = false;
+
+    private async Task HandleRegistration()
+    {
+        statusMessage = string.Empty;
+        isProcessing = true;
+
+        try
+        {
+            // 1. Llamar al servicio para registrar el proveedor
+            // Nota: Se asume que IAuthService tiene este método
+            await AuthService.RegisterProvider(registerModel);
+
+            // 2. Éxito
+            statusClass = "alert-success";
+            statusMessage = "¡Registro exitoso! Ahora puedes iniciar sesión.";
+
+            // 3. Redireccionar después de un breve periodo
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/login");
+        }
+        catch (HttpRequestException ex)
+        {
+            // 4. Fallo de la API (ej. usuario ya existe, validación del servidor)
+            statusClass = "alert-danger";
+            statusMessage = $"Fallo el registro: {ex.Message}";
+        }
+        catch (Exception)
+        {
+            // 5. Error inesperado
+            statusClass = "alert-danger";
+            statusMessage = "Ocurrió un error inesperado durante el registro.";
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+}

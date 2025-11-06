@@ -16,15 +16,18 @@ namespace PortalProveedores.Application.Features.Auth.Commands
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IFileStorageService _fileStorageService;
         private readonly IJwtGeneratorService _jwtGeneratorService;
+        private readonly IIdentityService _identityService;
 
         public RegisterCommandHandler(
             UserManager<ApplicationUser> userManager,
             IFileStorageService fileStorageService,
-            IJwtGeneratorService jwtGeneratorService)
+            IJwtGeneratorService jwtGeneratorService,
+            IIdentityService identityService)
         {
             _userManager = userManager;
             _fileStorageService = fileStorageService;
             _jwtGeneratorService = jwtGeneratorService;
+            _identityService = identityService;
         }
 
         public async Task<AuthResult> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -33,17 +36,17 @@ namespace PortalProveedores.Application.Features.Auth.Commands
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
             {
-                return new AuthResult(false, "", "", Enumerable.Empty<string>(), "El email ya está registrado.");
+                return new AuthResult(false, "", 0, Enumerable.Empty<long>(), "El email ya está registrado.");
             }
 
             // 2. Validar que se haya enviado un ID de Cliente o Proveedor, pero no ambos
             if (!request.ProveedorId.HasValue && !request.ClienteId.HasValue)
             {
-                return new AuthResult(false, "", "", Enumerable.Empty<string>(), "Se debe asignar un Cliente o Proveedor al usuario.");
+                return new AuthResult(false, "", 0, Enumerable.Empty<long>(), "Se debe asignar un Cliente o Proveedor al usuario.");
             }
             if (request.ProveedorId.HasValue && request.ClienteId.HasValue)
             {
-                return new AuthResult(false, "", "", Enumerable.Empty<string>(), "El usuario no puede ser Cliente y Proveedor a la vez.");
+                return new AuthResult(false, "", 0, Enumerable.Empty<long>(), "El usuario no puede ser Cliente y Proveedor a la vez.");
             }
 
             string selfieUrl = string.Empty;
@@ -64,18 +67,17 @@ namespace PortalProveedores.Application.Features.Auth.Commands
                 catch (Exception ex)
                 {
                     // Manejar error de subida (ej. loggear)
-                    return new AuthResult(false, "", "", Enumerable.Empty<string>(), $"Error al subir la selfie: {ex.Message}");
+                    return new AuthResult(false, "", 0, Enumerable.Empty<long>(), $"Error al subir la selfie: {ex.Message}");
                 }
             }
             else
             {
-                return new AuthResult(false, "", "", Enumerable.Empty<string>(), "La foto selfie es obligatoria.");
+                return new AuthResult(false, "", 0, Enumerable.Empty<long>(), "La foto selfie es obligatoria.");
             }
 
             // 4. Crear el objeto ApplicationUser
             var newUser = new ApplicationUser
             {
-                Id = Guid.NewGuid().ToString(), // Generamos el ID como string
                 UserName = request.Email,
                 Email = request.Email,
                 NombreCompleto = request.NombreCompleto,
@@ -96,24 +98,27 @@ namespace PortalProveedores.Application.Features.Auth.Commands
             if (!identityResult.Succeeded)
             {
                 var errors = string.Join(", ", identityResult.Errors.Select(e => e.Description));
-                return new AuthResult(false, "", "", Enumerable.Empty<string>(), $"Error al crear usuario: {errors}");
+                return new AuthResult(false, "", 0, Enumerable.Empty<long>(), $"Error al crear usuario: {errors}");
             }
 
             // 6. Asignar roles
             if (request.Roles.Any())
             {
-                var roleResult = await _userManager.AddToRolesAsync(newUser, request.Roles);
+                var roleNames = await _identityService.GetRoleNamesByIdsAsync(request.Roles);
+                var roleResult = await _userManager.AddToRolesAsync(newUser, roleNames);
                 if (!roleResult.Succeeded)
                 {
+                    await _userManager.DeleteAsync(newUser);
                     var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                    return new AuthResult(false, "", "", Enumerable.Empty<string>(), $"Error al asignar roles: {errors}");
+                    return new AuthResult(false, "", 0, Enumerable.Empty<long>(), $"Error al asignar roles: {errors}");
                 }
             }
 
             scope.Complete();
 
             // 7. Generar Token JWT
-            var token = await _jwtGeneratorService.CreateTokenAsync(newUser);
+            var jwt_roleNames = (await _identityService.GetRoleNamesByIdsAsync(request.Roles)).ToList();
+            var token = await _jwtGeneratorService.CreateTokenAsync(newUser, jwt_roleNames);
 
             return new AuthResult(true, token, newUser.Id, request.Roles, null);
         }

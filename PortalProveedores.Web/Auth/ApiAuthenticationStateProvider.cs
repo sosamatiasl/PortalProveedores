@@ -1,51 +1,112 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using PortalProveedores.Web.Services;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using System.IdentityModel.Tokens.Jwt; // Paquete System.IdentityModel.Tokens.Jwt
-using System.Linq;
-using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using PortalProveedores.Web.Services; // Para ITokenStorageService
 
 namespace PortalProveedores.Web.Auth
 {
+    // Heredamos de AuthenticationStateProvider para que Blazor sepa que es el proveedor oficial
     public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly TokenStorageService _tokenStorage;
+        private readonly ITokenStorageService _tokenStorageService;
+        private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
 
-        public ApiAuthenticationStateProvider(TokenStorageService tokenStorage)
+        // Define un estado de usuario ANÓNIMO para usar cuando el usuario no está logueado
+        private readonly AuthenticationState _anonymous;
+
+        public ApiAuthenticationStateProvider(ITokenStorageService tokenStorageService)
         {
-            _tokenStorage = tokenStorage;
+            _tokenStorageService = tokenStorageService;
+            _jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
+            // Crea un objeto ClaimsPrincipal vacío (no autenticado)
+            _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
 
-        public override Task<AuthenticationState> GetAuthenticationStateAsync()
+        // Este es el método que Blazor llama al inicio para obtener el estado actual
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = _tokenStorage.Token;
+            string? token = null;
+            try
+            {
+                // Solo intentar llamar a JS Interop si la aplicación es interactiva
+                // o si sabemos que no estamos en el estático inicial (a menudo, try/catch es suficiente)
+                token = await _tokenStorageService.GetToken();
+            }
+            catch (InvalidOperationException)
+            {
+                // Esto captura específicamente el error de prerenderizado.
+                // Devolvemos un estado anónimo para que el componente se renderice.
+                return _anonymous;
+            }
+            catch (Exception)
+            {
+                // Manejar otras excepciones de token/storage si es necesario.
+                return _anonymous;
+            }
 
             if (string.IsNullOrWhiteSpace(token))
             {
-                // Usuario anónimo
-                return Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
+                // Si no hay token, devuelve el estado ANÓNIMO
+                return _anonymous;
             }
 
-            // Usuario autenticado (parseamos el token)
-            var claims = ParseClaimsFromJwt(token);
-            var identity = new ClaimsIdentity(claims, "jwt");
-            var user = new ClaimsPrincipal(identity);
+            // 2. Si el token existe, crea el ClaimsPrincipal a partir de él
+            var principal = GetClaimsPrincipalFromJwt(token);
 
-            return Task.FromResult(new AuthenticationState(user));
+            // 3. Devuelve el estado con el usuario autenticado
+            return new AuthenticationState(principal);
         }
 
-        // Método para notificar a Blazor que el estado cambió (Login/Logout)
-        public void NotifyAuthenticationStateChanged()
+        // --- MÉTODOS PÚBLICOS USADOS POR AuthService.cs ---
+
+        /// <summary>
+        /// Marca al usuario como autenticado y notifica a Blazor del cambio de estado.
+        /// </summary>
+        public void MarkUserAsAuthenticated(string token)
         {
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            var authenticatedUser = GetClaimsPrincipalFromJwt(token);
+
+            // Notifica a Blazor que el estado de autenticación ha cambiado.
+            // Esto fuerza a los componentes AuthorizeView a re-renderizarse.
+            NotifyAuthenticationStateChanged(
+                Task.FromResult(new AuthenticationState(authenticatedUser))
+            );
         }
 
-        private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+        /// <summary>
+        /// Marca al usuario como desautenticado y notifica a Blazor del cambio de estado.
+        /// </summary>
+        public void MarkUserAsLoggedOut()
         {
-            var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadJwtToken(jwt);
-            return token.Claims;
+            // Notifica a Blazor que el estado de autenticación ha cambiado a ANÓNIMO.
+            NotifyAuthenticationStateChanged(
+                Task.FromResult(_anonymous)
+            );
+        }
+
+        // --- LÓGICA PRIVADA ---
+
+        /// <summary>
+        /// Lee el JWT, lo decodifica y devuelve un ClaimsPrincipal.
+        /// </summary>
+        private ClaimsPrincipal GetClaimsPrincipalFromJwt(string jwtToken)
+        {
+            try
+            {
+                // Decodifica el token sin validarlo (ya se validó en la API).
+                var token = _jwtSecurityTokenHandler.ReadJwtToken(jwtToken);
+
+                // Crea una identidad a partir de los claims del token
+                var identity = new ClaimsIdentity(token.Claims, "jwtAuthType");
+
+                return new ClaimsPrincipal(identity);
+            }
+            catch
+            {
+                // Si la decodificación falla (token inválido o expirado), devuelve un anónimo.
+                return _anonymous.User;
+            }
         }
     }
 }

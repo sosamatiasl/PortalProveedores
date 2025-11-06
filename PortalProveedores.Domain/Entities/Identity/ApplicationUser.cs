@@ -3,7 +3,7 @@
 namespace PortalProveedores.Domain.Entities.Identity
 {
     // Heredamos de IdentityUser usando un 'string' como tipo de la clave primaria (PK)
-    public class ApplicationUser : IdentityUser<string>
+    public class ApplicationUser : IdentityUser<long>
     {
         // Las propiedades base (Id, UserName, Email, PasswordHash, etc.) ya existen
 

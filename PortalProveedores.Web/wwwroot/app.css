@@ -1,5 +1,17 @@
-html, body {
+html {
+    position: relative;
+    min-height: 100%;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body, #app {
+    min-height: 100vh; /* Asegura que el cuerpo ocupe la altura de la ventana */
+    margin: 0;
+    padding: 0;
 }
 
 a, .btn-link {
@@ -49,3 +61,78 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+/* Estilos para la Landing Page */
+.empty-layout-container {
+    height: 100%;
+    width: 100%;
+    /* Asegura que no haya padding o margin del layout */
+    margin: 0;
+    padding: 0;
+}
+SD
+
+.landing-layout-wrapper {
+    height: 100vh; /* Ocupa la altura total del viewport */
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    /* Importante: Aseguramos que no se superponga con otros layouts */
+    background-color: transparent;
+}
+
+.landing-container {
+    background: linear-gradient(135deg, #007bff 0%, #00bcd4 100%); /* Azul fuerte a Cian claro */
+    height: 100vh; /* Se mantiene en 100% para cubrir el wrapper */
+    width: 100%;
+    /* Centrado y Flex */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.landing-content {
+    max-width: 600px;
+    padding: 40px;
+    border-radius: 15px;
+    background-color: rgba(0, 0, 0, 0.1); /* Fondo sutil para el contenido */
+    backdrop-filter: blur(5px); /* Efecto de desenfoque moderno */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.shadow-text {
+    /* Sombra de texto suave para mejor legibilidad sobre el degradado */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Estilo para el Botón de Iniciar Sesión */
+.btn-login {
+    background-color: #f7a61d; /* Naranja/Ámbar (Contraste cálido y activo) */
+    border-color: #f7a61d;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+    .btn-login:hover {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        transform: translateY(-2px);
+    }
+
+/* Estilo para el Botón de Registrarse como Proveedor */
+.btn-register {
+    background-color: #1a7e44; /* Verde Oscuro de Éxito */
+    border-color: #1a7e44;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+    .btn-register:hover {
+        background-color: #28a745;
+        border-color: #28a745;
+        transform: translateY(-2px);
+    }

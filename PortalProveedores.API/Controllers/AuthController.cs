@@ -126,10 +126,27 @@ namespace PortalProveedores.API.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> RegisterProvider([FromBody] RegisterProviderRequest request)
         {
-            // Similar al anterior, pero para Proveedores
+            var command = new RegisterProviderCommand
+            {
+                Username = request.Username,
+                RazonSocial = request.RazonSocial,
+                Email = request.Email,
+                Password = request.Password,
+                CUIT = request.CUIT
+            };
+
             try
             {
-                // await _authService.RegisterProvider(request);
+                var result = await _mediator.Send(command);
+                if (!result.Succeeded)
+                {
+                    var errors = result.Errors.Select(e => e.Description).ToList();
+                    return BadRequest(new {
+                        message = "Falló el registro del nuevo proveedor.",
+                        errors
+                    });
+                }
+
                 return StatusCode(201, new { message = "Proveedor registrado exitosamente." });
             }
             catch (Exception ex)
@@ -151,37 +168,16 @@ namespace PortalProveedores.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Login([FromBody] Application.Models.LoginRequest request)
         {
-            /*
-            //var user = await _userManager.FindByEmailAsync(request.Email);
-            //if (user == null || !user.Activo)
-            //{
-            //    return Unauthorized(new { message = "Credenciales inválidas o usuario inactivo." });
-            //}
-
-            //var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-            //if (!result.Succeeded)
-            //{
-            //    return Unauthorized(new { message = "Credenciales inválidas." });
-            //}
-
-            //// Generar y devolver el token
-            //var roles = await _userManager.GetRolesAsync(user);
-            //var token = await _jwtGenerator.CreateTokenAsync(user);
-
-            //return Ok(new AuthResult(true, token, user.Id, roles, null));
-
-            //// Obtener la IP del cliente
-            //var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-
-            //var (token, refreshToken) = await _identityService.LoginAsync(request.Email, request.Password, ipAddress);
-
-            //// Devuelve el Access Token y el Refresh Token
-            //return Ok(new { token, refreshToken });
-            */
+            var command = new LoginCommand
+            {
+                Username = request.Username,
+                Password = request.Password,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"
+            };
 
             try
             {
-                var response = await _authService.Login(request);
+                var response = await _mediator.Send(command);
                 return Ok(response);
             }
             catch (UnauthorizedAccessException)

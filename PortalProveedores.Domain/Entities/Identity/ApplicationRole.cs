@@ -4,7 +4,7 @@ namespace PortalProveedores.Domain.Entities.Identity
 {
     // Heredamos de IdentityRole usando 'int' como PK (se modificó a string porque ApplicationUser usa string)
     // OLD: public class ApplicationRole : IdentityRole<int>
-    public class ApplicationRole : IdentityRole<string>
+    public class ApplicationRole : IdentityRole<long>
     {
         public string? Descripcion { get; set; }
 

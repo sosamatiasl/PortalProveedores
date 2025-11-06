@@ -23,15 +23,15 @@ namespace PortalProveedores.Application.Features.Auth.Commands
         public long? ClienteId { get; set; }
 
         // Lista de nombres de roles, ej: ["AdministrativoProveedor", "Transportista"]
-        public List<string> Roles { get; set; } = new List<string>();
+        public List<long> Roles { get; set; } = new List<long>();
     }
 
     // Objeto de respuesta para Login y Registro
     public record AuthResult(
         bool Success,
         string Token,
-        string UserId,
-        IEnumerable<string> Roles,
+        long UserId,
+        IEnumerable<long> Roles,
         string? ErrorMessage
     );
 }

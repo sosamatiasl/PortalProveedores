@@ -15,35 +15,38 @@ namespace PortalProveedores.Web.Services
     public class ProviderService : IProviderService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly TokenStorageService _tokenStorage;
+        private readonly ITokenStorageService _tokenStorage;
         private readonly string _apiBaseUrl = "https://localhost:7061"; // URL de su API
 
-        public ProviderService(IHttpClientFactory httpClientFactory, TokenStorageService tokenStorage)
+        public ProviderService(IHttpClientFactory httpClientFactory, ITokenStorageService tokenStorage)
         {
             _httpClientFactory = httpClientFactory;
             _tokenStorage = tokenStorage;
         }
 
-        private HttpClient GetAuthenticatedClient()
+        private async Task<HttpClient> GetAuthenticatedClient()
         {
             var client = _httpClientFactory.CreateClient();
-            if (!string.IsNullOrWhiteSpace(_tokenStorage.Token))
+
+            var token = await _tokenStorage.GetToken();
+
+            if (!string.IsNullOrWhiteSpace(token))
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _tokenStorage.Token);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
             return client;
         }
 
         public async Task CreateProvider(CreateProviderRequest request)
         {
-            var client = GetAuthenticatedClient();
+            var client = await GetAuthenticatedClient();
             var response = await client.PostAsJsonAsync($"{_apiBaseUrl}/api/Provider", request);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task<List<ProviderDto>> GetMyProviders()
         {
-            var client = GetAuthenticatedClient();
+            var client = await GetAuthenticatedClient();
             return await client.GetFromJsonAsync<List<ProviderDto>>($"{_apiBaseUrl}/api/Provider")
                 ?? new List<ProviderDto>();
         }

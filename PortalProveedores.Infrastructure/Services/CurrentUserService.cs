@@ -23,7 +23,14 @@ namespace PortalProveedores.Infrastructure.Services
 
         private ClaimsPrincipal? User => _httpContextAccessor.HttpContext?.User;
 
-        public string? UserId => User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        public long? UserId
+        {
+            get
+            {
+                var claimValue = User?.FindFirstValue(ClaimTypes.NameIdentifier);
+                return long.TryParse(claimValue, out var id) ? id : null;
+            }
+        }
 
         // Se leen los claims personalizados que fueron definidos en JwtGeneratorService
         public long? ClienteId

@@ -6,6 +6,7 @@ using PortalProveedores.Application.Common.Interfaces;
 using PortalProveedores.Domain.Entities;
 using PortalProveedores.Domain.Entities.Identity;
 using System.Reflection;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Principal;
 
 namespace PortalProveedores.Infrastructure.Persistence
@@ -14,12 +15,12 @@ namespace PortalProveedores.Infrastructure.Persistence
     public class PortalProveedoresDbContext : IdentityDbContext<
         ApplicationUser,
         ApplicationRole,
-        string, // PK de Usuario (string)
-        IdentityUserClaim<string>,
+        long, // PK de Usuario (long)
+        IdentityUserClaim<long>,
         UsuarioRol, // Clase de unión N-N
-        IdentityUserLogin<string>,
-        IdentityRoleClaim<string>, // PK de RolClaim (int) (cambiado a <string> para coincidir con ApplicationRole)
-        IdentityUserToken<string>
+        IdentityUserLogin<long>,
+        IdentityRoleClaim<long>, // PK de RolClaim (long)
+        IdentityUserToken<long>
     >, IApplicationDbContext
     {
         // Tablas del script SQL que no son de Identity (ejemplo)
@@ -103,10 +104,26 @@ namespace PortalProveedores.Infrastructure.Persistence
             });
 
             // Mapeo del resto de tablas de Identity
-            builder.Entity<IdentityUserClaim<string>>(b => b.ToTable("UsuarioClaims"));
-            builder.Entity<IdentityUserLogin<string>>(b => b.ToTable("UsuarioLogins"));
-            builder.Entity<IdentityUserToken<string>>(b => b.ToTable("UsuarioTokens"));
-            builder.Entity<IdentityRoleClaim<int>>(b => b.ToTable("RolClaims"));
+            builder.Entity<IdentityUserClaim<long>>(b =>
+            {
+                b.ToTable("UsuarioClaims");
+                b.HasKey(uc => uc.Id);
+            });
+            builder.Entity<IdentityUserLogin<long>>(b =>
+            {
+                b.ToTable("UsuarioLogins");
+                b.HasKey(l => new { l.LoginProvider, l.ProviderKey, l.UserId });
+            });
+            builder.Entity<IdentityUserToken<long>>(b =>
+            {
+                b.ToTable("UsuarioTokens");
+                b.HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
+            });
+            builder.Entity<IdentityRoleClaim<long>>(b =>
+            {
+                b.ToTable("RolClaims");
+                b.HasKey(rc => rc.Id);
+            });
 
             // Aquí va el resto de la configuración de las entidades de negocio
             // (OrdenesCompra, Cotizaciones, etc.)
@@ -390,10 +407,21 @@ namespace PortalProveedores.Infrastructure.Persistence
             });
 
             // Cargar los Roles (movido aquí desde el script SQL para que EF lo maneje)
+            //  A) Administrativo de parte del Cliente.
+            //  B) Administrativo de parte del Proveedor.
+            //  C) Transportista de mercadería.
+            //  D) Recepcionador de mercaderia en deposito de cliente.
+            //  E) Despachante de mercaderia desde deposito de proveedor.
+            //  La compatibilidad de roles de proveedor se puede dar entre el B), C) y E). Es decir, un mismo usuario proveedor puede tener los roles B), C) y E) a la vez, o elegir cuál o cuáles desea tener.
+            //  La compatibilidad de roles de cliente se puede dar entre el A), y D). Es decir, un mismo usuario cliente puede tener los roles A), D) a la vez, o elegir cuál o cuáles desea tener.
+            //  Para que la aplicacion movil o el sitio web acceda a la generacion de un código QR, para luego ser escaneado cuando la mercadería llega al depósito del cliente, el usuario proveedor que solicita la generación del QR debe contener el rol E).
+            //  Para que la aplicacion movil o el sitio web acceda a la lectura y aceptación de un código QR que se ha leído, el usuario cliente que solicita la lectura y aceptacion del QR debe contener el rol D).
             builder.Entity<ApplicationRole>().HasData(
-                new ApplicationRole { Id = "1", Name = "AdministrativoCliente", NormalizedName = "ADMINISTRATIVOCLIENTE", Descripcion = "Rol A" },
-                new ApplicationRole { Id = "2", Name = "AdministrativoProveedor", NormalizedName = "ADMINISTRATIVOPROVEEDOR", Descripcion = "Rol B" }
-                //... (etc)
+                new ApplicationRole { Id = 1, Name = "AdministrativoCliente",   NormalizedName = "ADMINISTRATIVOCLIENTE",   Descripcion = "Rol A" },
+                new ApplicationRole { Id = 2, Name = "AdministrativoProveedor", NormalizedName = "ADMINISTRATIVOPROVEEDOR", Descripcion = "Rol B" },
+                new ApplicationRole { Id = 3, Name = "Transportista",           NormalizedName = "TRANSPORTISTA",           Descripcion = "Rol C" },
+                new ApplicationRole { Id = 4, Name = "RecepcionadorCliente",    NormalizedName = "RECEPCIONADORCLIENTE",    Descripcion = "Rol D" },
+                new ApplicationRole { Id = 5, Name = "DespachanteProveedor",    NormalizedName = "DESPACHANTEPROVEEDOR",    Descripcion = "Rol E" }
             );
         }
 

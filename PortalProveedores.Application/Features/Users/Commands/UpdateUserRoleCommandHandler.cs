@@ -31,9 +31,9 @@ namespace PortalProveedores.Application.Features.Users.Commands
         public async Task<bool> Handle(UpdateUserRoleCommand request, CancellationToken cancellationToken)
         {
             // 1. Validar el Rol Solicitado
-            if (!PermittedRoles.Contains(request.NewRole))
+            if (!PermittedRoles.Contains(request.NewRoleId))
             {
-                throw new Exception($"El rol '{request.NewRole}' no es un rol asignable.");
+                throw new Exception($"El rol '{request.NewRoleId}' no es un rol asignable.");
             }
 
             // 2. Seguridad del Administrador (solo A o B)
@@ -64,12 +64,12 @@ namespace PortalProveedores.Application.Features.Users.Commands
             }
 
             // 5. Aplicar la restricción del ámbito del Rol
-            if (isClienteAdmin && (request.NewRole.Contains("Proveedor") || request.NewRole.Contains("Vendedor") || request.NewRole.Contains("Despachante")))
+            if (isClienteAdmin && (request.NewRoleId.Contains("Proveedor") || request.NewRoleId.Contains("Vendedor") || request.NewRoleId.Contains("Despachante")))
             {
                 throw new UnauthorizedAccessException("El Administrador Cliente solo puede asignar roles de Cliente (A, D).");
             }
 
-            if (isProveedorAdmin && (request.NewRole.Contains("Cliente") || request.NewRole.Contains("Recepcionador")))
+            if (isProveedorAdmin && (request.NewRoleId.Contains("Cliente") || request.NewRoleId.Contains("Recepcionador")))
             {
                 throw new UnauthorizedAccessException("El Administrador Proveedor solo puede asignar roles de Proveedor (B, C, E).");
             }
@@ -84,8 +84,14 @@ namespace PortalProveedores.Application.Features.Users.Commands
             }
 
             // 7. Añadir el nuevo rol
-            var addResult = await _identityService.AddUserToRoleAsync(request.UserId, request.NewRole);
+            var newRoleId = await _identityService.GetRoleIdByNameAsync(request.NewRoleId);
+            if (!newRoleId.HasValue)
+            {
+                // El rol no existe en la base de datos
+                throw new Exception($"El rol '{request.NewRoleId}' no fue encontrado en el sistema.");
+            }
 
+            var addResult = await _identityService.AddUserToRoleAsync(request.UserId, newRoleId.Value);
             if (addResult == true)
             {
                 // Si es exitoso, remover el rol anterior (si aplica)

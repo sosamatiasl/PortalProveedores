@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IdentityFrameworkResult = Microsoft.AspNetCore.Identity.IdentityResult;
 
 namespace PortalProveedores.Application.Features.Auth.Commands
 {
@@ -27,7 +28,7 @@ namespace PortalProveedores.Application.Features.Auth.Commands
             _context = context;
         }
 
-        public async Task<IdentityResult> Handle(RegisterClientCommand request, CancellationToken cancellationToken)
+        public async Task<PortalProveedores.Application.Models.IdentityResult> Handle(RegisterClientCommand request, CancellationToken cancellationToken)
         {
             // 1. Crear el objeto ApplicationUser
             var user = new ApplicationUser
@@ -41,12 +42,17 @@ namespace PortalProveedores.Application.Features.Auth.Commands
             };
 
             // 2. Intentar crear el usuario en la tabla Identity
-            var result = await _userManager.CreateAsync(user, request.Password);
+            IdentityFrameworkResult identityFrameworkResult = await _userManager.CreateAsync(user, request.Password);
 
-            if (!result.Succeeded)
+            if (!identityFrameworkResult.Succeeded)
             {
+                var customErrors = identityFrameworkResult.Errors.Select(e => new PortalProveedores.Application.Models.IdentityError
+                {
+                    Code = e.Code,
+                    Description = e.Description
+                }).ToArray();
                 // Devolver el error de Identity si la creación falló (ej. password muy débil, email ya existe)
-                return result;
+                return PortalProveedores.Application.Models.IdentityResult.Failed(customErrors);
             }
 
             // 3. Asignar el rol "Cliente"
@@ -58,7 +64,7 @@ namespace PortalProveedores.Application.Features.Auth.Commands
                 var cliente = new Cliente
                 {
                     // Asumimos que Cliente tiene una referencia al ApplicationUser
-                    Id = Int64.Parse(user.Id),
+                    Id = user.Id,
                     RazonSocial = request.CompanyName,
                     FechaCreacion = DateTime.UtcNow
                 };
@@ -77,13 +83,13 @@ namespace PortalProveedores.Application.Features.Auth.Commands
                 await _userManager.DeleteAsync(user);
 
                 // Devolver un error genérico (o loggearlo para evitar exponer detalles sensibles)
-                return IdentityResult.Failed(new IdentityError
+                return PortalProveedores.Application.Models.IdentityResult.Failed(new PortalProveedores.Application.Models.IdentityError
                 {
                     Description = "El usuario se creó pero falló la creación de la entidad de cliente asociada."
                 });
             }
 
-            return IdentityResult.Success;
+            return PortalProveedores.Application.Models.IdentityResult.Success;
         }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using PortalProveedores.Application.Models;
 using PortalProveedores.Web.Auth;
+using System.Net.Http;
 
 namespace PortalProveedores.Web.Services
 {
     public interface IAuthService
     {
-        Task<LoginResponse> Login(LoginRequest loginRequest);
+        Task<AuthResponse> Login(LoginRequest loginRequest);
         Task Logout();
         Task RegisterClient(RegisterClientRequest request);
         Task RegisterProvider(RegisterProviderRequest request);
@@ -14,65 +15,103 @@ namespace PortalProveedores.Web.Services
 
     public class AuthService : IAuthService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory _httpClient;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
-        private readonly TokenStorageService _tokenStorage;
+        private readonly ITokenStorageService _tokenStorage;
         private readonly string _apiBaseUrl = "https://localhost:7061"; // URL de su API
 
-        public AuthService(IHttpClientFactory httpClientFactory, AuthenticationStateProvider authenticationStateProvider, TokenStorageService tokenStorage)
+        public AuthService(
+            IHttpClientFactory httpClient,
+            AuthenticationStateProvider authenticationStateProvider,
+            ITokenStorageService tokenStorage)
         {
-            _httpClientFactory = httpClientFactory;
+            _httpClient = httpClient;
             _authenticationStateProvider = authenticationStateProvider;
             _tokenStorage = tokenStorage;
         }
 
-        public async Task<LoginResponse> Login(LoginRequest loginRequest)
+        public async Task<AuthResponse> Login(LoginRequest loginRequest)
         {
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.PostAsJsonAsync($"{_apiBaseUrl}/api/Authentication/Login", loginRequest);
+            var client = _httpClient.CreateClient();
 
-            if (!response.IsSuccessStatusCode)
+            var response = await client.PostAsJsonAsync($"{_apiBaseUrl}/api/Auth/Login", loginRequest);
+
+            if (response.IsSuccessStatusCode)
             {
-                throw new Exception("Error al iniciar sesión.");
+                // 2. Deserializar la respuesta exitosa (AuthResponse)
+                var authResult = await response.Content.ReadFromJsonAsync<AuthResponse>();
+                if (authResult == null)
+                {
+                    throw new Exception("La respuesta del servidor fue nula.");
+                }
+
+                // 3. Persistir los tokens en el navegador (Local Storage)
+                await _tokenStorage.SetToken(authResult.Token);
+                await _tokenStorage.SetRefreshToken(authResult.RefreshToken);
+
+                // Opcional: Persistir el nombre de usuario
+                await _tokenStorage.SetToken(authResult.Username);
+
+                // 4. Notificar a Blazor sobre el cambio de estado (Autenticado)
+                // Esto desencadena que la aplicación Blazor sepa que el usuario ha iniciado sesión.
+                ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(authResult.Token);
+
+                return authResult;
             }
+            else
+            {
+                // 5. Manejar errores de la API (ej: 401 Unauthorized)
+                string errorContent = await response.Content.ReadAsStringAsync();
 
-            var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
-
-            // 1. Guardar el token en el servicio Scoped
-            _tokenStorage.Token = loginResponse.Token;
-
-            // 2. Notificar a Blazor que el estado cambió
-            ((ApiAuthenticationStateProvider)_authenticationStateProvider).NotifyAuthenticationStateChanged();
-
-            return loginResponse;
+                // Lanzar una excepción que el componente pueda atrapar (ej. Login.razor)
+                throw new HttpRequestException($"Fallo el inicio de sesión: {response.ReasonPhrase}. Detalles: {errorContent}");
+            }
         }
 
         public async Task Logout()
         {
-            // 1. Limpiar el token
-            _tokenStorage.Token = null;
+            // 1. Eliminar los tokens de Local Storage
+            await _tokenStorage.RemoveTokens();
 
-            // 2. Notificar a Blazor
-            ((ApiAuthenticationStateProvider)_authenticationStateProvider).NotifyAuthenticationStateChanged();
+            // 2. Notificar a Blazor sobre el cambio de estado (Desautenticado)
+            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
         }
 
         public async Task RegisterClient(RegisterClientRequest request)
         {
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.PostAsJsonAsync($"{_apiBaseUrl}/api/Auth/RegisterClient", request);
+            var client = _httpClient.CreateClient();
+
+            // Nota: El BaseAddress del HttpClient ya debe apuntar a la API (ej: https://localhost:7061/)
+            var response = await client.PostAsJsonAsync("api/Auth/RegisterClient", request);
+
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Error al registrar cliente.");
+                // Leer el mensaje de error de la API (ej. validaciones fallidas)
+                var errorContent = await response.Content.ReadAsStringAsync();
+
+                // Lanzar una excepción para que el componente RegisterClient.razor la capture
+                throw new HttpRequestException($"Fallo el registro del cliente. Código: {response.StatusCode}. Detalles: {errorContent}");
             }
+
+            // Si tiene éxito (código 201), el método termina y el componente puede redirigir.
         }
 
         public async Task RegisterProvider(RegisterProviderRequest request)
         {
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.PostAsJsonAsync($"{_apiBaseUrl}/api/Authentication/RegisterProvider", request);
+            var client = _httpClient.CreateClient();
+
+            // 1. Envía la solicitud POST al endpoint de la API
+            var response = await client.PostAsJsonAsync($"{_apiBaseUrl}/api/Auth/register-provider", request);
+
+            // 2. Maneja la respuesta
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Error al registrar proveedor.");
+                // Si el código de estado no es de éxito, leer el mensaje de error de la API
+                string errorContent = await response.Content.ReadAsStringAsync();
+
+                // Mejorar el manejo de errores lanzando una excepción con el contenido de la API
+                // Esto permite al componente RegisterProvider.razor mostrar un mensaje útil.
+                throw new HttpRequestException($"El registro falló: {errorContent}");
             }
         }
     }

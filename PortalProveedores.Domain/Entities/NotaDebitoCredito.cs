@@ -30,6 +30,6 @@ namespace PortalProveedores.Domain.Entities
         public string Detalle { get; set; } = string.Empty; // Razón del ajuste
 
         public DateTime FechaCreacion { get; set; }
-        public string UsuarioCreadorId { get; set; } = string.Empty; // ID del Rol A
+        public long? UsuarioCreadorId { get; set; } // ID del Rol A
     }
 }

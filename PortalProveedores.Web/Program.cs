@@ -18,7 +18,7 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 
 // 4. Registrar nuestro almacén de tokens (Scoped: vive lo que dura el circuito del usuario)
-builder.Services.AddScoped<TokenStorageService>();
+builder.Services.AddScoped<ITokenStorageService, TokenStorageService>();
 
 // 5. Registrar los servicios de negocio
 builder.Services.AddScoped<IAuthService, AuthService>();

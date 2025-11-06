@@ -36,18 +36,18 @@ namespace PortalProveedores.Infrastructure.Services
             _context = context;
         }
 
-        public async Task<string> CreateTokenAsync(ApplicationUser user)
+        public async Task<string> CreateTokenAsync(ApplicationUser user, IList<string> roles)
         {
             // 1. Claims básicos
             var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.NameId, user.Id),
-            new(JwtRegisteredClaimNames.Email, user.Email!),
-            new(JwtRegisteredClaimNames.GivenName, user.NombreCompleto)
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new (JwtRegisteredClaimNames.Email, user.Email!),
+            new (JwtRegisteredClaimNames.GivenName, user.NombreCompleto),
         };
 
             // 2. Claims de Roles
-            var roles = await _userManager.GetRolesAsync(user);
+            //var roles = await _userManager.GetRolesAsync(user);
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             // 3. Claims personalizados para la lógica de negocio
@@ -87,9 +87,9 @@ namespace PortalProveedores.Infrastructure.Services
         {
             var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.UserName ?? user.Email!)
         };
 

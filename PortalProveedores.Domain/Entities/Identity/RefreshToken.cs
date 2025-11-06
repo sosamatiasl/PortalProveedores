@@ -8,7 +8,7 @@ namespace PortalProveedores.Domain.Entities.Identity
 {
     public class RefreshToken
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         // El token en sí (generalmente un GUID o un string seguro)
         public string Token { get; set; } = string.Empty;
@@ -26,7 +26,7 @@ namespace PortalProveedores.Domain.Entities.Identity
         public string? RemoteIpAddress { get; set; }
 
         // Clave foránea al usuario de Identity
-        public string UserId { get; set; } = string.Empty;
+        public long UserId { get; set; }
 
         // Propiedad de navegación
         public ApplicationUser User { get; set; } = null!;

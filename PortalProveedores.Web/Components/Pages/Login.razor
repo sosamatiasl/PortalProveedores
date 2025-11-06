@@ -1,52 +1,94 @@
 ﻿@page "/login"
-@layout MainLayout
 @using PortalProveedores.Application.Models
 @using PortalProveedores.Web.Components.Layout
 @using PortalProveedores.Web.Services
+@layout EmptyLayout
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
-<PageTitle>Login</PageTitle>
+<PageTitle>Iniciar Sesión</PageTitle>
 
-<h1>Iniciar Sesión</h1>
-<hr />
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
+        <h3 class="card-title text-center mb-4">Acceso al Portal</h3>
+        <hr />
 
-<EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+        @* Formulario de Inicio de Sesión *@
+        <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+            <DataAnnotationsValidator />
 
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <div class="alert alert-danger" role="alert">@errorMessage</div>
-    }
+            @* Muestra el mensaje de error si existe *@
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @errorMessage
+                </div>
+            }
 
-    <div class="form-group mb-2">
-        <label>Usuario:</label>
-        <InputText @bind-Value="loginModel.Username" class="form-control" />
+            <div class="mb-3">
+                <label for="username">Usuario:</label>
+                <InputText id="username" @bind-Value="loginModel.Username" class="form-control" />
+                <ValidationMessage For="() => loginModel.Username" />
+            </div>
+
+            <div class="mb-4">
+                <label for="password">Contraseña:</label>
+                <InputText id="password" @bind-Value="loginModel.Password" type="password" class="form-control" />
+                <ValidationMessage For="() => loginModel.Password" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3" disabled="@isProcessing">
+                @if (isProcessing)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">Cargando...</span>
+                                }
+                else
+                {
+                    <span>Iniciar Sesión</span>
+                }
+            </button>
+        </EditForm>
+
+        <p class="text-center mt-3">
+            ¿Eres un nuevo proveedor?
+            <a href="/register-provider">Regístrate aquí</a>
+        </p>
+
     </div>
-    <div class="form-group mb-2">
-        <label>Contraseña:</label>
-        <InputText @bind-Value="loginModel.Password" type="password" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Login</button>
-</EditForm>
+</div>
 
 @code {
     private LoginRequest loginModel = new LoginRequest();
     private string errorMessage = string.Empty;
+    private bool isProcessing = false;
 
     private async Task HandleLogin()
     {
+        errorMessage = string.Empty;
+        isProcessing = true;
+
         try
         {
-            errorMessage = string.Empty;
+            // 1. Llama al servicio de autenticación que ya implementamos
             await AuthService.Login(loginModel);
-            Navigation.NavigateTo("/"); // Redirigir al inicio
+
+            // 2. Si el login es exitoso, redirecciona al dashboard
+            Navigation.NavigateTo("/dashboard", forceLoad: true); // forceLoad asegura el refresco de AuthStateProvider
+        }
+        catch (HttpRequestException ex)
+        {
+            // 3. Captura errores de red o errores específicos devueltos por la API (ej. credenciales inválidas)
+            // Nota: Aquí se asume que AuthService lanza un HttpRequestException con el mensaje de error
+            errorMessage = $"Fallo el inicio de sesión: {ex.Message}";
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            // 4. Captura errores inesperados
+            errorMessage = $"Ocurrió un error inesperado: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
         }
     }
 }

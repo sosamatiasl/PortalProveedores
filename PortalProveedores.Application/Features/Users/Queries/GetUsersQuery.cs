@@ -14,10 +14,10 @@ namespace PortalProveedores.Application.Features.Users.Queries
     // --- DTO de Respuesta ---
     public class UserDto
     {
-        public string Id { get; set; } = string.Empty;
+        public long Id { get; set; }
         public string Email { get; set; } = string.Empty;
         public string NombreCompleto { get; set; } = string.Empty;
-        public string RolActual { get; set; } = string.Empty;
+        public long RolActual { get; set; }
         public long? EntidadId { get; set; } // ClienteId o ProveedorId
         public string EntidadNombre { get; set; } = string.Empty;
     }
@@ -29,7 +29,7 @@ namespace PortalProveedores.Application.Features.Users.Queries
     public class GetUsersQuery : IRequest<List<UserDto>>
     {
         // Criterios de filtrado
-        public string? Rol { get; set; }
+        public long Rol { get; set; }
         public string? EmailFilter { get; set; }
     }
 }

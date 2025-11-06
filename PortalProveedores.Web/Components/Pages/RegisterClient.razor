@@ -51,6 +51,10 @@
             await AuthService.RegisterClient(RegisterModel);
             Navigation.NavigateTo("/login");
         }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Error de registro: {ex.Message}");
+        }
         catch (Exception ex)
         {
             // Manejar error (ej: mostrar mensaje)

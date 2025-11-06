@@ -13,7 +13,7 @@ namespace PortalProveedores.Application.Common.Interfaces
     /// </summary>
     public interface IJwtGeneratorService
     {
-        Task<string> CreateTokenAsync(ApplicationUser user);
+        Task<string> CreateTokenAsync(ApplicationUser user, IList<string> roles);
 
         /// <summary>
         /// // Genera el token JWT.

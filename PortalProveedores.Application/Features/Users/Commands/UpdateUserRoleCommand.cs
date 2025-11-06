@@ -12,7 +12,7 @@ namespace PortalProveedores.Application.Features.Users.Commands
 {
     public class UpdateUserRoleCommand : IRequest<bool>
     {
-        public string UserId { get; set; } = string.Empty;
-        public string NewRole { get; set; } = string.Empty;
+        public long UserId { get; set; }
+        public string NewRoleId { get; set; } = string.Empty;
     }
 }

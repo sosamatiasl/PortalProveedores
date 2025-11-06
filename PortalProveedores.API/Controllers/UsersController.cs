@@ -51,14 +51,14 @@ namespace PortalProveedores.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> UpdateUserRole(string userId, [FromBody] UpdateUserRoleCommand command)
+        public async Task<IActionResult> UpdateUserRole(long userId, [FromBody] UpdateUserRoleCommand command)
         {
             try
             {
                 // Aseguramos que el ID en la ruta se use en el comando
                 command.UserId = userId;
                 await _mediator.Send(command);
-                return Ok(new { message = $"Rol del usuario {userId} actualizado a {command.NewRole}." });
+                return Ok(new { message = $"Rol del usuario {userId} actualizado a {command.NewRoleId}." });
             }
             catch (UnauthorizedAccessException ex)
             {

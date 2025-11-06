@@ -44,21 +44,21 @@ namespace PortalProveedores.Application.Features.Users.Queries
             foreach (var user in allUsers)
             {
                 var userRoles = await _identityService.GetUserRolesAsync(user.Id);
-                var rol = userRoles.FirstOrDefault() ?? "Sin Rol";
+                var rol = userRoles.FirstOrDefault(0);
 
                 // Si es Admin Cliente, solo puede ver a usuarios asignados a su Cliente (D, C/E solo si es el mismo cliente)
                 if (isClienteAdmin && user.ClienteId == _currentUser.ClienteId)
                 {
-                    // Solo listar usuarios de roles internos del Cliente (Admin, Recepcionador)
-                    if (rol == "AdministrativoCliente" || rol == "RecepcionadorMercaderia")
+                    // Solo listar usuarios de roles internos del Cliente (Administrativo (1), Recepcionador (4))
+                    if (rol == 1 || rol == 4)
                     {
                         filteredUsers.Add(MapToUserDto(user.Id, user.Email, user.NombreCompleto, rol, user.ClienteId, "Cliente"));
                     }
                 }
-                // Si es Admin Proveedor, solo puede ver a usuarios asignados a su Proveedor (B, C, E)
+                // Si es Admin Proveedor, solo puede ver a usuarios asignados a su Proveedor (2, 3, 5)
                 else if (isProveedorAdmin && user.ProveedorId == _currentUser.ProveedorId)
                 {
-                    if (rol == "AdministrativoProveedor" || rol == "Vendedor" || rol == "DespachanteMercaderia")
+                    if (rol == 2 || rol == 3 || rol == 5)
                     {
                         filteredUsers.Add(MapToUserDto(user.Id, user.Email, user.NombreCompleto, rol, user.ProveedorId, "Proveedor"));
                     }
@@ -74,7 +74,7 @@ namespace PortalProveedores.Application.Features.Users.Queries
             return filteredUsers.OrderBy(u => u.Email).ToList();
         }
 
-        private UserDto MapToUserDto(string id, string email, string nombre, string rol, long? entidadId, string tipoEntidad)
+        private UserDto MapToUserDto(long id, string email, string nombre, long rol, long? entidadId, string tipoEntidad)
         {
             return new UserDto
             {

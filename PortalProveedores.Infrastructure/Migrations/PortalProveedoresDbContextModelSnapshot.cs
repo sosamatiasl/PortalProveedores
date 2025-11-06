@@ -22,7 +22,7 @@ namespace PortalProveedores.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,40 +36,17 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RolClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("RolClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<long>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,9 +60,8 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -94,7 +70,7 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.ToTable("UsuarioClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
@@ -102,24 +78,23 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Property<string>("ProviderKey")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
+                    b.HasKey("LoginProvider", "ProviderKey", "UserId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("UsuarioLogins", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<long>", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
@@ -425,8 +400,11 @@ namespace PortalProveedores.Infrastructure.Migrations
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.ApplicationRole", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -455,24 +433,48 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1",
+                            Id = 1L,
                             Descripcion = "Rol A",
                             Name = "AdministrativoCliente",
                             NormalizedName = "ADMINISTRATIVOCLIENTE"
                         },
                         new
                         {
-                            Id = "2",
+                            Id = 2L,
                             Descripcion = "Rol B",
                             Name = "AdministrativoProveedor",
                             NormalizedName = "ADMINISTRATIVOPROVEEDOR"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            Descripcion = "Rol C",
+                            Name = "Transportista",
+                            NormalizedName = "TRANSPORTISTA"
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            Descripcion = "Rol D",
+                            Name = "RecepcionadorCliente",
+                            NormalizedName = "RECEPCIONADORCLIENTE"
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            Descripcion = "Rol E",
+                            Name = "DespachanteProveedor",
+                            NormalizedName = "DESPACHANTEPROVEEDOR"
                         });
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.ApplicationUser", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
@@ -515,8 +517,13 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -559,11 +566,11 @@ namespace PortalProveedores.Infrastructure.Migrations
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.RefreshToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
@@ -581,9 +588,8 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -594,11 +600,11 @@ namespace PortalProveedores.Infrastructure.Migrations
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.UsuarioRol", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -640,9 +646,8 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Property<int>("Tipo")
                         .HasColumnType("int");
 
-                    b.Property<string>("UsuarioCreadorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long?>("UsuarioCreadorId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -855,9 +860,8 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Property<long>("RemitoId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("UsuarioRecepcionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long?>("UsuarioRecepcionId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -972,7 +976,7 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.ToTable("RemitoQRCodes", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
                 {
                     b.HasOne("PortalProveedores.Domain.Entities.Identity.ApplicationRole", null)
                         .WithMany()
@@ -981,7 +985,7 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<long>", b =>
                 {
                     b.HasOne("PortalProveedores.Domain.Entities.Identity.ApplicationUser", null)
                         .WithMany()
@@ -990,7 +994,7 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
                 {
                     b.HasOne("PortalProveedores.Domain.Entities.Identity.ApplicationUser", null)
                         .WithMany()
@@ -999,7 +1003,7 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<long>", b =>
                 {
                     b.HasOne("PortalProveedores.Domain.Entities.Identity.ApplicationUser", null)
                         .WithMany()
@@ -1246,8 +1250,7 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.HasOne("PortalProveedores.Domain.Entities.Identity.ApplicationUser", "UsuarioRecepcion")
                         .WithMany()
                         .HasForeignKey("UsuarioRecepcionId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Remito");
 

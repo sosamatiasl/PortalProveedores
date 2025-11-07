@@ -1,0 +1,19 @@
+﻿@page "/dashboard-cliente"
+@rendermode InteractiveServer 
+@attribute [Authorize(Roles = DashboardUserRoles.RolCliente)]
+@using Microsoft.AspNetCore.Authorization
+@using PortalProveedores.Domain.Enums
+@using PortalProveedores.Domain.Constants
+
+<PageTitle>Dashboard Cliente</PageTitle>
+
+<div class="container mt-5">
+    <h1>Panel de Control de Clientes</h1>
+    <p>Bienvenido al área de clientes. Aquí puedes revisar recepciones de mercadería y gestionar tu perfil de empresa.</p>
+    
+    <AuthorizeView Roles="AdministrativoCliente">
+        <p class="alert alert-info">¡Acceso concedido! Tienes el rol **@TipoRolUsuario.AdministrativoCliente**.</p>
+    </AuthorizeView>
+    
+    @* Coloca aquí los componentes específicos del cliente *@
+</div>

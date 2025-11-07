@@ -15,26 +15,23 @@ namespace PortalProveedores.Web.Services
 
     public class AuthService : IAuthService
     {
-        private readonly IHttpClientFactory _httpClient;
+        private readonly HttpClient _httpClient;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
         private readonly ITokenStorageService _tokenStorage;
-        private readonly string _apiBaseUrl = "https://localhost:7061"; // URL de su API
 
         public AuthService(
-            IHttpClientFactory httpClient,
+            IHttpClientFactory httpClientFactory,
             AuthenticationStateProvider authenticationStateProvider,
             ITokenStorageService tokenStorage)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("ApiGateway");
             _authenticationStateProvider = authenticationStateProvider;
             _tokenStorage = tokenStorage;
         }
 
         public async Task<AuthResponse> Login(LoginRequest loginRequest)
         {
-            var client = _httpClient.CreateClient();
-
-            var response = await client.PostAsJsonAsync($"{_apiBaseUrl}/api/Auth/Login", loginRequest);
+            var response = await _httpClient.PostAsJsonAsync("api/Auth/Login", loginRequest);
 
             if (response.IsSuccessStatusCode)
             {
@@ -79,10 +76,8 @@ namespace PortalProveedores.Web.Services
 
         public async Task RegisterClient(RegisterClientRequest request)
         {
-            var client = _httpClient.CreateClient();
-
             // Nota: El BaseAddress del HttpClient ya debe apuntar a la API (ej: https://localhost:7061/)
-            var response = await client.PostAsJsonAsync("api/Auth/RegisterClient", request);
+            var response = await _httpClient.PostAsJsonAsync("api/Auth/RegisterClient", request);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -98,10 +93,8 @@ namespace PortalProveedores.Web.Services
 
         public async Task RegisterProvider(RegisterProviderRequest request)
         {
-            var client = _httpClient.CreateClient();
-
             // 1. Envía la solicitud POST al endpoint de la API
-            var response = await client.PostAsJsonAsync($"{_apiBaseUrl}/api/Auth/register-provider", request);
+            var response = await _httpClient.PostAsJsonAsync($"api/Auth/register-provider", request);
 
             // 2. Maneja la respuesta
             if (!response.IsSuccessStatusCode)

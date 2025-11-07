@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using PortalProveedores.Application.Common.Interfaces;
 using PortalProveedores.Domain.Entities;
 using PortalProveedores.Domain.Entities.Identity;
+using PortalProveedores.Domain.Enums;
 using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using System.Security.Principal;
@@ -216,6 +217,11 @@ namespace PortalProveedores.Infrastructure.Persistence
                 b.ToTable("Proveedores");
                 b.HasKey(p => p.Id);
                 b.Property(p => p.RazonSocial).HasMaxLength(200).IsRequired();
+                b.HasOne(p => p.User)
+                    .WithOne(u => u.Proveedor)
+                    .HasForeignKey<Proveedor>(p => p.Id)
+                    .IsRequired();
+                b.Property(p => p.Id).ValueGeneratedNever(); // Porque es FK a ApplicationUser
             });
 
             // Remito
@@ -416,12 +422,17 @@ namespace PortalProveedores.Infrastructure.Persistence
             //  La compatibilidad de roles de cliente se puede dar entre el A), y D). Es decir, un mismo usuario cliente puede tener los roles A), D) a la vez, o elegir cuál o cuáles desea tener.
             //  Para que la aplicacion movil o el sitio web acceda a la generacion de un código QR, para luego ser escaneado cuando la mercadería llega al depósito del cliente, el usuario proveedor que solicita la generación del QR debe contener el rol E).
             //  Para que la aplicacion movil o el sitio web acceda a la lectura y aceptación de un código QR que se ha leído, el usuario cliente que solicita la lectura y aceptacion del QR debe contener el rol D).
+            TipoRolUsuario administrativoCliente = TipoRolUsuario.AdministrativoCliente;
+            TipoRolUsuario administrativoProveedor = TipoRolUsuario.AdministrativoProveedor;
+            TipoRolUsuario transportista = TipoRolUsuario.Transportista;
+            TipoRolUsuario recepcionadorCliente = TipoRolUsuario.RecepcionadorCliente;
+            TipoRolUsuario despachanteProveedor = TipoRolUsuario.DespachanteProveedor;
             builder.Entity<ApplicationRole>().HasData(
-                new ApplicationRole { Id = 1, Name = "AdministrativoCliente",   NormalizedName = "ADMINISTRATIVOCLIENTE",   Descripcion = "Rol A" },
-                new ApplicationRole { Id = 2, Name = "AdministrativoProveedor", NormalizedName = "ADMINISTRATIVOPROVEEDOR", Descripcion = "Rol B" },
-                new ApplicationRole { Id = 3, Name = "Transportista",           NormalizedName = "TRANSPORTISTA",           Descripcion = "Rol C" },
-                new ApplicationRole { Id = 4, Name = "RecepcionadorCliente",    NormalizedName = "RECEPCIONADORCLIENTE",    Descripcion = "Rol D" },
-                new ApplicationRole { Id = 5, Name = "DespachanteProveedor",    NormalizedName = "DESPACHANTEPROVEEDOR",    Descripcion = "Rol E" }
+                new ApplicationRole { Id = (long)administrativoCliente,     Name = administrativoCliente    .ToString(), NormalizedName = administrativoCliente     .ToString().ToUpper(), Descripcion = "Rol A" },
+                new ApplicationRole { Id = (long)administrativoProveedor,   Name = administrativoProveedor  .ToString(), NormalizedName = administrativoProveedor   .ToString().ToUpper(), Descripcion = "Rol B" },
+                new ApplicationRole { Id = (long)transportista,             Name = transportista            .ToString(), NormalizedName = transportista             .ToString().ToUpper(), Descripcion = "Rol C" },
+                new ApplicationRole { Id = (long)recepcionadorCliente,      Name = recepcionadorCliente     .ToString(), NormalizedName = recepcionadorCliente      .ToString().ToUpper(), Descripcion = "Rol D" },
+                new ApplicationRole { Id = (long)despachanteProveedor,      Name = despachanteProveedor     .ToString(), NormalizedName = despachanteProveedor      .ToString().ToUpper(), Descripcion = "Rol E" }
             );
         }
 

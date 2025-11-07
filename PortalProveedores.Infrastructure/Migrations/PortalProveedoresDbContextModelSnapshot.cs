@@ -517,13 +517,8 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -558,8 +553,6 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("ProveedorId");
 
                     b.ToTable("Usuarios", (string)null);
                 });
@@ -811,10 +804,7 @@ namespace PortalProveedores.Infrastructure.Migrations
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Proveedor", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("CUIT")
                         .HasColumnType("nvarchar(max)");
@@ -1105,13 +1095,7 @@ namespace PortalProveedores.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("ClienteId");
 
-                    b.HasOne("PortalProveedores.Domain.Entities.Proveedor", "Proveedor")
-                        .WithMany()
-                        .HasForeignKey("ProveedorId");
-
                     b.Navigation("Cliente");
-
-                    b.Navigation("Proveedor");
                 });
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.RefreshToken", b =>
@@ -1239,6 +1223,17 @@ namespace PortalProveedores.Infrastructure.Migrations
                     b.Navigation("Proveedor");
                 });
 
+            modelBuilder.Entity("PortalProveedores.Domain.Entities.Proveedor", b =>
+                {
+                    b.HasOne("PortalProveedores.Domain.Entities.Identity.ApplicationUser", "User")
+                        .WithOne("Proveedor")
+                        .HasForeignKey("PortalProveedores.Domain.Entities.Proveedor", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Recepcion", b =>
                 {
                     b.HasOne("PortalProveedores.Domain.Entities.Remito", "Remito")
@@ -1317,6 +1312,8 @@ namespace PortalProveedores.Infrastructure.Migrations
 
             modelBuilder.Entity("PortalProveedores.Domain.Entities.Identity.ApplicationUser", b =>
                 {
+                    b.Navigation("Proveedor");
+
                     b.Navigation("RefreshTokens");
 
                     b.Navigation("UsuarioRoles");

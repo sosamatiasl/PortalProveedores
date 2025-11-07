@@ -5,6 +5,7 @@ using PortalProveedores.Application.Common.Interfaces;
 using PortalProveedores.Application.Models;
 using PortalProveedores.Domain.Entities;
 using PortalProveedores.Domain.Entities.Identity;
+using PortalProveedores.Domain.Enums;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityFrameworkResult = Microsoft.AspNetCore.Identity.IdentityResult;
@@ -48,7 +49,8 @@ namespace PortalProveedores.Application.Features.Auth.Commands
             }
 
             // 3. Asignar el rol "Proveedor"
-            await _userManager.AddToRoleAsync(user, ProviderRole);
+            TipoRolUsuario rolAdministrativoProveedor = TipoRolUsuario.AdministrativoProveedor;
+            await _userManager.AddToRoleAsync(user, rolAdministrativoProveedor.ToString());
 
             // 4. Crear la entidad Proveedor en la tabla de dominio
             try

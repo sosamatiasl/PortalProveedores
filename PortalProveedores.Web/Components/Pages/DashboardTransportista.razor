@@ -1,0 +1,19 @@
+﻿@page "/dashboard-transportista"
+@rendermode InteractiveServer 
+@attribute [Authorize(Roles = DashboardUserRoles.RolTransportista)]
+@using Microsoft.AspNetCore.Authorization
+@using PortalProveedores.Domain.Constants
+@using PortalProveedores.Domain.Enums
+
+<PageTitle>Dashboard Transportista</PageTitle>
+
+<div class="container mt-5">
+    <h1>Panel de Control de Transportistas</h1>
+    <p>Bienvenido al área de transportistas. Aquí puedes gestionar tus cargas y rutas de entrega.</p>
+    
+    <AuthorizeView Roles="Transportista">
+        <p class="alert alert-warning">¡Acceso concedido! Tienes el rol **@TipoRolUsuario.Transportista**.</p>
+    </AuthorizeView>
+    
+    @* Coloca aquí los componentes específicos del transportista *@
+</div>

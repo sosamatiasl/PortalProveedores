@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.JSInterop;
 using PortalProveedores.Web.Services; // Para ITokenStorageService
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace PortalProveedores.Web.Auth
 {
@@ -10,14 +11,21 @@ namespace PortalProveedores.Web.Auth
     {
         private readonly ITokenStorageService _tokenStorageService;
         private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        //private readonly IJSRuntime _jsRuntime;
 
         // Define un estado de usuario ANÓNIMO para usar cuando el usuario no está logueado
         private readonly AuthenticationState _anonymous;
 
-        public ApiAuthenticationStateProvider(ITokenStorageService tokenStorageService)
+        public ApiAuthenticationStateProvider(
+            ITokenStorageService tokenStorageService,
+            //IJSRuntime jsRuntime,
+            IHttpContextAccessor httpContextAccessor)
         {
             _tokenStorageService = tokenStorageService;
             _jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            //_jsRuntime = jsRuntime;
+            _httpContextAccessor = httpContextAccessor;
 
             // Crea un objeto ClaimsPrincipal vacío (no autenticado)
             _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
@@ -26,6 +34,15 @@ namespace PortalProveedores.Web.Auth
         // Este es el método que Blazor llama al inicio para obtener el estado actual
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
+            // 🛑 LÓGICA CLAVE: Si estamos en la fase de prerendering, HttpContext está disponible.
+            // Si lo está, DEVOLVEMOS un usuario anónimo y evitamos llamar a ProtectedLocalStorage,
+            // ya que ProtectedLocalStorage fallará en esta fase.
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                // Es prerendering o una solicitud estática: devolver estado anónimo.
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            }
+
             string? token = null;
             try
             {

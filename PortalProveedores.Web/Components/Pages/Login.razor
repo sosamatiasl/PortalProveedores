@@ -1,7 +1,11 @@
 ﻿@page "/login"
+@* @rendermode InteractiveServer *@
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @using PortalProveedores.Application.Models
+@using PortalProveedores.Domain.Enums
 @using PortalProveedores.Web.Components.Layout
 @using PortalProveedores.Web.Services
+@using PortalProveedores.Web.Helpers
 @layout EmptyLayout
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
@@ -13,8 +17,10 @@
         <h3 class="card-title text-center mb-4">Acceso al Portal</h3>
         <hr />
 
+        @* <HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender: false)" /> *@
+
         @* Formulario de Inicio de Sesión *@
-        <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+        <EditForm Model="loginModel" OnValidSubmit="@HandleLogin" FormName="loginForm">
             <DataAnnotationsValidator />
 
             @* Muestra el mensaje de error si existe *@
@@ -62,6 +68,11 @@
     private string errorMessage = string.Empty;
     private bool isProcessing = false;
 
+    protected override void OnInitialized()
+    {
+        loginModel = new LoginRequest();
+    }
+
     private async Task HandleLogin()
     {
         errorMessage = string.Empty;
@@ -70,21 +81,44 @@
         try
         {
             // 1. Llama al servicio de autenticación que ya implementamos
-            await AuthService.Login(loginModel);
+            var authResponse = await AuthService.Login(loginModel);
 
             // 2. Si el login es exitoso, redirecciona al dashboard
-            Navigation.NavigateTo("/dashboard", forceLoad: true); // forceLoad asegura el refresco de AuthStateProvider
+            string token = authResponse.Token;
+            List<string> userRoles = TokenHelper.GetRolesFromToken(token);
+            if (userRoles.Any(r => r == TipoRolUsuario.AdministrativoProveedor.ToString()
+                                || r == TipoRolUsuario.DespachanteProveedor.ToString()))
+            {
+                Navigation.NavigateTo("/dashboard-proveedor", forceLoad: true);
+                // forceLoad asegura el refresco de AuthStateProvider
+            }
+            else if (userRoles.Any(r => r == TipoRolUsuario.AdministrativoCliente.ToString()
+                                     || r == TipoRolUsuario.RecepcionadorCliente.ToString()))
+            {
+                Navigation.NavigateTo("/dashboard-cliente", forceLoad: true);
+                // forceLoad asegura el refresco de AuthStateProvider
+            }
+            else if (userRoles.Contains(TipoRolUsuario.Transportista.ToString()))
+            {
+                Navigation.NavigateTo("/dashboard-transportista", forceLoad: true);
+                // forceLoad asegura el refresco de AuthStateProvider
+            }
+            else
+            {
+                // Manejar usuario sin rol (ej: a una página de perfil incompleto)
+                Navigation.NavigateTo("/perfil-incompleto");
+            }
         }
         catch (HttpRequestException ex)
         {
             // 3. Captura errores de red o errores específicos devueltos por la API (ej. credenciales inválidas)
             // Nota: Aquí se asume que AuthService lanza un HttpRequestException con el mensaje de error
-            errorMessage = $"Fallo el inicio de sesión: {ex.Message}";
+            errorMessage = $"Fallo el inicio de sesión: {ex.Message} | {ex.StackTrace}";
         }
         catch (Exception ex)
         {
             // 4. Captura errores inesperados
-            errorMessage = $"Ocurrió un error inesperado: {ex.Message}";
+            errorMessage = $"Ocurrió un error inesperado: {ex.Message} | {ex.StackTrace}";
         }
         finally
         {

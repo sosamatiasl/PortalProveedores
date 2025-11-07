@@ -1,0 +1,50 @@
+﻿@page "/perfil-incompleto"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer 
+@attribute [Authorize(Policy = "NoOperationalRolePolicy")]
+@inject NavigationManager Navigation
+
+<PageTitle>Perfil Incompleto / Acceso Limitado</PageTitle>
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="text-center p-5 card shadow-lg">
+        <h1 class="text-danger mb-4">⚠️ Acceso Limitado</h1>
+        
+        <p class="lead">
+            Has iniciado sesión correctamente, pero tu perfil no está completo o no tienes un rol asignado para ver los Dashboards principales.
+        </p>
+        
+        <p class="text-muted mb-4">
+            Por favor, completa la información de tu cuenta o contacta a soporte para que te asignen un rol.
+        </p>
+        
+        <button class="btn btn-primary" @onclick="NavigateToProfile">
+            Ir a Completar Perfil
+        </button>
+        
+        <button class="btn btn-outline-secondary mt-3" @onclick="LogoutUser">
+            Cerrar Sesión
+        </button>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    private void NavigateToProfile()
+    {
+        // Redireccionar al usuario a una página de edición de perfil o formulario de alta.
+        // Asume que tienes una página /perfil-edicion.
+        Navigation.NavigateTo("/perfil-edicion");
+    }
+
+    private void LogoutUser()
+    {
+        // Lógica para cerrar la sesión (esto es solo un ejemplo conceptual)
+        // En tu aplicación real, esto llamaría a tu IAuthService.Logout()
+        // y notificaría al AuthenticationStateProvider.
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

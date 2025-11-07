@@ -73,21 +73,6 @@ namespace PortalProveedores.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Proveedores",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RazonSocial = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    CUIT = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Proveedores", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -126,6 +111,43 @@ namespace PortalProveedores.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Usuarios",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NombreCompleto = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SelfieFotoURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProveedorId = table.Column<long>(type: "bigint", nullable: true),
+                    ClienteId = table.Column<long>(type: "bigint", nullable: true),
+                    FechaRegistro = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Activo = table.Column<bool>(type: "bit", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Usuarios", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Usuarios_Clientes_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Clientes",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FacturaDetalles",
                 columns: table => new
                 {
@@ -150,141 +172,6 @@ namespace PortalProveedores.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "NotasDebitoCredito",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FacturaId = table.Column<long>(type: "bigint", nullable: false),
-                    ClienteId = table.Column<long>(type: "bigint", nullable: false),
-                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
-                    Tipo = table.Column<int>(type: "int", nullable: false),
-                    Motivo = table.Column<int>(type: "int", nullable: false),
-                    MontoAjuste = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Detalle = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UsuarioCreadorId = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_NotasDebitoCredito", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_NotasDebitoCredito_Clientes_ClienteId",
-                        column: x => x.ClienteId,
-                        principalTable: "Clientes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_NotasDebitoCredito_Facturas_FacturaId",
-                        column: x => x.FacturaId,
-                        principalTable: "Facturas",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_NotasDebitoCredito_Proveedores_ProveedorId",
-                        column: x => x.ProveedorId,
-                        principalTable: "Proveedores",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrdenesCompra",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ClienteId = table.Column<long>(type: "bigint", nullable: false),
-                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
-                    NumeroOrden = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    FechaEmision = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Estado = table.Column<int>(type: "int", nullable: false),
-                    Detalles = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrdenesCompra", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OrdenesCompra_Clientes_ClienteId",
-                        column: x => x.ClienteId,
-                        principalTable: "Clientes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_OrdenesCompra_Proveedores_ProveedorId",
-                        column: x => x.ProveedorId,
-                        principalTable: "Proveedores",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Remitos",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
-                    ClienteId = table.Column<long>(type: "bigint", nullable: false),
-                    NumeroRemito = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    FechaEmision = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Estado = table.Column<int>(type: "int", nullable: false),
-                    ArchivoPDF_URL = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Remitos", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Remitos_Clientes_ClienteId",
-                        column: x => x.ClienteId,
-                        principalTable: "Clientes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Remitos_Proveedores_ProveedorId",
-                        column: x => x.ProveedorId,
-                        principalTable: "Proveedores",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Usuarios",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    NombreCompleto = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SelfieFotoURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProveedorId = table.Column<long>(type: "bigint", nullable: true),
-                    ClienteId = table.Column<long>(type: "bigint", nullable: true),
-                    FechaRegistro = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Activo = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Usuarios", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Usuarios_Clientes_ClienteId",
-                        column: x => x.ClienteId,
-                        principalTable: "Clientes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Usuarios_Proveedores_ProveedorId",
-                        column: x => x.ProveedorId,
-                        principalTable: "Proveedores",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RolClaims",
                 columns: table => new
                 {
@@ -306,167 +193,23 @@ namespace PortalProveedores.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CatalogoProductoPrecios",
+                name: "Proveedores",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductoId = table.Column<long>(type: "bigint", nullable: false),
-                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
-                    PrecioAcordado = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    FechaVigenciaDesde = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FechaVigenciaHasta = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    FechaUltimaModificacion = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CatalogoProductoPrecios", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CatalogoProductoPrecios_CatalogoProductos_ProductoId",
-                        column: x => x.ProductoId,
-                        principalTable: "CatalogoProductos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CatalogoProductoPrecios_Proveedores_ProveedorId",
-                        column: x => x.ProveedorId,
-                        principalTable: "Proveedores",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Cotizaciones",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrdenCompraId = table.Column<long>(type: "bigint", nullable: false),
-                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
-                    NumeroCotizacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FechaEmision = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MontoTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ValidezDias = table.Column<int>(type: "int", nullable: false),
-                    Estado = table.Column<int>(type: "int", nullable: false),
-                    ArchivoPDF_URL = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cotizaciones", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Cotizaciones_OrdenesCompra_OrdenCompraId",
-                        column: x => x.OrdenCompraId,
-                        principalTable: "OrdenesCompra",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Cotizaciones_Proveedores_ProveedorId",
-                        column: x => x.ProveedorId,
-                        principalTable: "Proveedores",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrdenCompraItems",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrdenCompraId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductoId = table.Column<long>(type: "bigint", nullable: false),
-                    Sku = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Cantidad = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnidadMedida = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrdenCompraItems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OrdenCompraItems_CatalogoProductos_ProductoId",
-                        column: x => x.ProductoId,
-                        principalTable: "CatalogoProductos",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_OrdenCompraItems_OrdenesCompra_OrdenCompraId",
-                        column: x => x.OrdenCompraId,
-                        principalTable: "OrdenesCompra",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FacturaRemitos",
-                columns: table => new
-                {
-                    FacturaId = table.Column<long>(type: "bigint", nullable: false),
-                    RemitoId = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FacturaRemitos", x => new { x.FacturaId, x.RemitoId });
-                    table.ForeignKey(
-                        name: "FK_FacturaRemitos_Facturas_FacturaId",
-                        column: x => x.FacturaId,
-                        principalTable: "Facturas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_FacturaRemitos_Remitos_RemitoId",
-                        column: x => x.RemitoId,
-                        principalTable: "Remitos",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RemitoQRCodes",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RemitoId = table.Column<long>(type: "bigint", nullable: false),
-                    CodigoHash = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FechaExpiracion = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Usado = table.Column<bool>(type: "bit", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    RazonSocial = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    CUIT = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RemitoQRCodes", x => x.Id);
+                    table.PrimaryKey("PK_Proveedores", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RemitoQRCodes_Remitos_RemitoId",
-                        column: x => x.RemitoId,
-                        principalTable: "Remitos",
+                        name: "FK_Proveedores_Usuarios_Id",
+                        column: x => x.Id,
+                        principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Recepciones",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RemitoId = table.Column<long>(type: "bigint", nullable: false),
-                    UsuarioRecepcionId = table.Column<long>(type: "bigint", nullable: true),
-                    FechaRecepcion = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    HuboDiferencias = table.Column<bool>(type: "bit", nullable: false),
-                    DetalleDiferencias = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FirmaRecepcionista_URL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FirmaTransportista_URL = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Recepciones", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Recepciones_Remitos_RemitoId",
-                        column: x => x.RemitoId,
-                        principalTable: "Remitos",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Recepciones_Usuarios_UsuarioRecepcionId",
-                        column: x => x.UsuarioRecepcionId,
-                        principalTable: "Usuarios",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -574,6 +317,262 @@ namespace PortalProveedores.Infrastructure.Migrations
                         name: "FK_UsuarioTokens_Usuarios_UserId",
                         column: x => x.UserId,
                         principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CatalogoProductoPrecios",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductoId = table.Column<long>(type: "bigint", nullable: false),
+                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
+                    PrecioAcordado = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    FechaVigenciaDesde = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FechaVigenciaHasta = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FechaUltimaModificacion = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CatalogoProductoPrecios", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CatalogoProductoPrecios_CatalogoProductos_ProductoId",
+                        column: x => x.ProductoId,
+                        principalTable: "CatalogoProductos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CatalogoProductoPrecios_Proveedores_ProveedorId",
+                        column: x => x.ProveedorId,
+                        principalTable: "Proveedores",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NotasDebitoCredito",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FacturaId = table.Column<long>(type: "bigint", nullable: false),
+                    ClienteId = table.Column<long>(type: "bigint", nullable: false),
+                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
+                    Tipo = table.Column<int>(type: "int", nullable: false),
+                    Motivo = table.Column<int>(type: "int", nullable: false),
+                    MontoAjuste = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Detalle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UsuarioCreadorId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NotasDebitoCredito", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_NotasDebitoCredito_Clientes_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Clientes",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_NotasDebitoCredito_Facturas_FacturaId",
+                        column: x => x.FacturaId,
+                        principalTable: "Facturas",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_NotasDebitoCredito_Proveedores_ProveedorId",
+                        column: x => x.ProveedorId,
+                        principalTable: "Proveedores",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrdenesCompra",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClienteId = table.Column<long>(type: "bigint", nullable: false),
+                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
+                    NumeroOrden = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FechaEmision = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Detalles = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrdenesCompra", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrdenesCompra_Clientes_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Clientes",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_OrdenesCompra_Proveedores_ProveedorId",
+                        column: x => x.ProveedorId,
+                        principalTable: "Proveedores",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Remitos",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
+                    ClienteId = table.Column<long>(type: "bigint", nullable: false),
+                    NumeroRemito = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FechaEmision = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    ArchivoPDF_URL = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Remitos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Remitos_Clientes_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Clientes",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Remitos_Proveedores_ProveedorId",
+                        column: x => x.ProveedorId,
+                        principalTable: "Proveedores",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cotizaciones",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrdenCompraId = table.Column<long>(type: "bigint", nullable: false),
+                    ProveedorId = table.Column<long>(type: "bigint", nullable: false),
+                    NumeroCotizacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FechaEmision = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MontoTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ValidezDias = table.Column<int>(type: "int", nullable: false),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    ArchivoPDF_URL = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cotizaciones", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Cotizaciones_OrdenesCompra_OrdenCompraId",
+                        column: x => x.OrdenCompraId,
+                        principalTable: "OrdenesCompra",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Cotizaciones_Proveedores_ProveedorId",
+                        column: x => x.ProveedorId,
+                        principalTable: "Proveedores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrdenCompraItems",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrdenCompraId = table.Column<long>(type: "bigint", nullable: false),
+                    ProductoId = table.Column<long>(type: "bigint", nullable: false),
+                    Sku = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Cantidad = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UnidadMedida = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrdenCompraItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrdenCompraItems_CatalogoProductos_ProductoId",
+                        column: x => x.ProductoId,
+                        principalTable: "CatalogoProductos",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_OrdenCompraItems_OrdenesCompra_OrdenCompraId",
+                        column: x => x.OrdenCompraId,
+                        principalTable: "OrdenesCompra",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FacturaRemitos",
+                columns: table => new
+                {
+                    FacturaId = table.Column<long>(type: "bigint", nullable: false),
+                    RemitoId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FacturaRemitos", x => new { x.FacturaId, x.RemitoId });
+                    table.ForeignKey(
+                        name: "FK_FacturaRemitos_Facturas_FacturaId",
+                        column: x => x.FacturaId,
+                        principalTable: "Facturas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FacturaRemitos_Remitos_RemitoId",
+                        column: x => x.RemitoId,
+                        principalTable: "Remitos",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Recepciones",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RemitoId = table.Column<long>(type: "bigint", nullable: false),
+                    UsuarioRecepcionId = table.Column<long>(type: "bigint", nullable: true),
+                    FechaRecepcion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    HuboDiferencias = table.Column<bool>(type: "bit", nullable: false),
+                    DetalleDiferencias = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirmaRecepcionista_URL = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirmaTransportista_URL = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Recepciones", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Recepciones_Remitos_RemitoId",
+                        column: x => x.RemitoId,
+                        principalTable: "Remitos",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Recepciones_Usuarios_UsuarioRecepcionId",
+                        column: x => x.UsuarioRecepcionId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RemitoQRCodes",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RemitoId = table.Column<long>(type: "bigint", nullable: false),
+                    CodigoHash = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FechaExpiracion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Usado = table.Column<bool>(type: "bit", nullable: false),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RemitoQRCodes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RemitoQRCodes_Remitos_RemitoId",
+                        column: x => x.RemitoId,
+                        principalTable: "Remitos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -832,11 +831,6 @@ namespace PortalProveedores.Infrastructure.Migrations
                 column: "ClienteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Usuarios_ProveedorId",
-                table: "Usuarios",
-                column: "ProveedorId");
-
-            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "Usuarios",
                 column: "NormalizedUserName",
@@ -914,13 +908,13 @@ namespace PortalProveedores.Infrastructure.Migrations
                 name: "Remitos");
 
             migrationBuilder.DropTable(
+                name: "Proveedores");
+
+            migrationBuilder.DropTable(
                 name: "Usuarios");
 
             migrationBuilder.DropTable(
                 name: "Clientes");
-
-            migrationBuilder.DropTable(
-                name: "Proveedores");
         }
     }
 }

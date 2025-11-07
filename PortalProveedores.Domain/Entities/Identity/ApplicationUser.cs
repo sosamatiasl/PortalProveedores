@@ -27,8 +27,5 @@ namespace PortalProveedores.Domain.Entities.Identity
         /// Tokens de actualización activos asociados a este usuario.
         /// </summary>
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
-
-        public byte[] PasswordHash { get; set; }
-        public byte[] PasswordSalt { get; set; }
     }
 }

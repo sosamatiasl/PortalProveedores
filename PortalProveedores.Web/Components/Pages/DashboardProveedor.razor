@@ -1,9 +1,12 @@
 ﻿@page "/dashboard-proveedor"
-@rendermode InteractiveServer 
+@layout MainLayout
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @attribute [Authorize(Roles = DashboardUserRoles.RolProveedor)]
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using PortalProveedores.Domain.Enums
 @using PortalProveedores.Domain.Constants
+@using PortalProveedores.Web.Components.Layout
 
 <PageTitle>Dashboard Proveedor</PageTitle>
 
@@ -12,7 +15,7 @@
     <p>Bienvenido al área de proveedores. Aquí puedes gestionar remitos, órdenes de compra y cotizaciones.</p>
     
     @* Puedes mostrar el rol actual para verificar *@
-    <AuthorizeView Roles="Proveedor">
+    <AuthorizeView Roles="@DashboardUserRoles.RolProveedor">
         <p class="alert alert-success">¡Acceso concedido! Tienes el rol **@TipoRolUsuario.AdministrativoProveedor**.</p>
     </AuthorizeView>
     

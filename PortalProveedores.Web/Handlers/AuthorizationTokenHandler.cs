@@ -16,27 +16,24 @@ namespace PortalProveedores.Web.Handlers
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            string? token = null;
+            // 1. Omitir el token SOLO para la solicitud de Login/Register (las rutas NO protegidas)
+            var requestPath = request.RequestUri?.AbsolutePath;
+            // El login es la única ruta que debe pasar sin token
+            bool isAuthEndpoint = requestPath != null &&
+                          (requestPath.EndsWith("/api/Auth/Login", StringComparison.OrdinalIgnoreCase) ||
+                           requestPath.Contains("/api/Auth/Register", StringComparison.OrdinalIgnoreCase));
 
-            // 1. Obtener el token de la sesión/almacenamiento del usuario logueado
-            // ¡Este método debe existir e implementarse para obtener el token guardado!
-            //var token = await _tokenStorage.GetToken();
-            try
+            if (!isAuthEndpoint)
             {
-                // Esto intentará leer de la memoria (si existe) o de ProtectedLocalStorage (y fallará en el thread estático)
-                token = await _tokenStorage.GetToken();
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("JavaScript interop calls cannot be issued at this time"))
-            {
-                // Si falla en el thread estático, asumimos que no hay token.
-                // Esto permite que la solicitud de login (que aún no tiene token) pase.
-                token = null;
-            }
+                // 2. Para rutas protegidas, obtenemos el token.
+                // GetToken() está blindado (Paso 2) para no lanzar la excepción de interop.
+                string? token = await _tokenStorage.GetToken();
 
-            if (!string.IsNullOrEmpty(token))
-            {
-                // 2. Adjuntar el token al encabezado de la solicitud
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    // 2. Adjuntar el token al encabezado de la solicitud
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
             }
 
             // 3. Continuar con la solicitud HTTP a la API

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
 using PortalProveedores.Web.Services; // Para ITokenStorageService
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -115,7 +114,12 @@ namespace PortalProveedores.Web.Auth
                 var token = _jwtSecurityTokenHandler.ReadJwtToken(jwtToken);
 
                 // Crea una identidad a partir de los claims del token
-                var identity = new ClaimsIdentity(token.Claims, "jwtAuthType");
+                var identity = new ClaimsIdentity(
+                    token.Claims,
+                    "jwtAuthType",
+                    ClaimTypes.Name,
+                    "role"
+                );
 
                 return new ClaimsPrincipal(identity);
             }

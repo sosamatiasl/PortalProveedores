@@ -53,6 +53,8 @@ namespace PortalProveedores.Web.Services
                 // Esto desencadena que la aplicación Blazor sepa que el usuario ha iniciado sesión.
                 ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(authResult.Token);
 
+                await Task.Delay(100);
+
                 return authResult;
             }
             else

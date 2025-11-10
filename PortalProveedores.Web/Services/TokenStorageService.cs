@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.Http;
 using Microsoft.JSInterop;
+using System.Diagnostics;
 
 namespace PortalProveedores.Web.Services
 {
@@ -11,14 +13,18 @@ namespace PortalProveedores.Web.Services
     {
         //private readonly IJSRuntime _jsRuntime;
         private readonly ProtectedLocalStorage _protectedLocalStorage;
+        private readonly IHttpContextAccessor _httpContextAccesor;
         private const string AuthTokenKey = "authToken";
         private const string RefreshTokenKey = "refreshToken";
         private string? _cachedAuthToken;
 
-        public TokenStorageService(/*IJSRuntime jsRuntime*/ProtectedLocalStorage protectedLocalStorage)
+        public TokenStorageService(/*IJSRuntime jsRuntime*/
+            ProtectedLocalStorage protectedLocalStorage,
+            IHttpContextAccessor httpContextAccesor)
         {
             //_jsRuntime = jsRuntime;
             _protectedLocalStorage = protectedLocalStorage;
+            _httpContextAccesor = httpContextAccesor;
         }
 
         public async Task SetToken(string token)
@@ -42,13 +48,26 @@ namespace PortalProveedores.Web.Services
                 return _cachedAuthToken;
             }
 
-            // 2. Si no está en memoria (ej: primera carga), leer de ProtectedLocalStorage
-            var result = await _protectedLocalStorage.GetAsync<string>(AuthTokenKey);
-
-            // 3. Almacenar en memoria si se lee de ProtectedLocalStorage
-            if (result.Success && result.Value != null)
+            if (_httpContextAccesor.HttpContext != null)
             {
-                _cachedAuthToken = result.Value;
+                return null;
+            }
+
+            // 2. Si no está en memoria (ej: primera carga), leer de ProtectedLocalStorage
+            try
+            {
+                var result = await _protectedLocalStorage.GetAsync<string>(AuthTokenKey);
+
+                // 3. Almacenar en memoria si se lee de ProtectedLocalStorage
+                if (result.Success && result.Value != null)
+                {
+                    _cachedAuthToken = result.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"{DateTime.Now} - {ex}");
+                _cachedAuthToken = null;
             }
 
             return _cachedAuthToken;

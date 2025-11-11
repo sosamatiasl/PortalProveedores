@@ -47,7 +47,7 @@ namespace PortalProveedores.Web.Services
                 await _tokenStorage.SetRefreshToken(authResult.RefreshToken);
 
                 // Opcional: Persistir el nombre de usuario
-                await _tokenStorage.SetToken(authResult.Username);
+                //await _tokenStorage.SetToken(authResult.Username);
 
                 // 4. Notificar a Blazor sobre el cambio de estado (Autenticado)
                 // Esto desencadena que la aplicación Blazor sepa que el usuario ha iniciado sesión.

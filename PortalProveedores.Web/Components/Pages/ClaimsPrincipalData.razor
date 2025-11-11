@@ -1,0 +1,71 @@
+﻿@page "/claims-principal-data"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using PortalProveedores.Web.Auth
+@using PortalProveedores.Web.Services
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ITokenStorageService TokenStorage
+
+<h1>ClaimsPrincipal Data</h1>
+
+<button @onclick="GetClaimsPrincipalData">Get ClaimsPrincipal Data</button>
+
+<p>@authMessage</p>
+
+@if (claims.Any())
+{
+    <ul>
+        @foreach (var claim in claims)
+        {
+            <li>@claim.Type: @claim.Value</li>
+        }
+    </ul>
+}
+
+<p>@surname</p>
+
+@code {
+    private string? currentToken;
+    private bool _isDataLoaded = false;
+    private string? authMessage;
+    private string? surname;
+    private IEnumerable<Claim> claims = Enumerable.Empty<Claim>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_isDataLoaded)
+        {
+            // 1. Obtener el token directamente del storage (ya blindado)
+            currentToken = await TokenStorage.GetToken();
+
+            // 2. Obtener el estado de autenticación (que usa el token)
+            await GetClaimsPrincipalData();
+
+            _isDataLoaded = true;
+
+            // Forzamos un re-render después de cargar los datos
+            // Esto es necesario ya que OnAfterRenderAsync no dispara automáticamente el render.
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetClaimsPrincipalData()
+    {
+        currentToken = await TokenStorage.GetToken();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            authMessage = $"{user.Identity.Name} is authenticated.";
+            claims = user.Claims;
+            surname = user.FindFirst(c => c.Type == ClaimTypes.Surname)?.Value;
+        }
+        else
+        {
+            authMessage = "The user is NOT authenticated.";
+        }
+    }
+}

@@ -65,7 +65,9 @@ namespace PortalProveedores.Application.Features.Auth.Commands
                 Token = jwtToken,
                 RefreshToken = refreshToken,
                 // Aquí puede añadir otros datos como roles o NombreCompleto
-                NombreCompleto = user.NombreCompleto ?? user.UserName
+                NombreCompleto = user.NombreCompleto ?? user.UserName,
+                RolDefecto = roles.FirstOrDefault(""),
+                Roles = roles
             };
         }
     }

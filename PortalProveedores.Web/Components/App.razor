@@ -1,4 +1,30 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+@code {
+    private bool _isReady = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 🚨 CRÍTICO: Forzar a esperar la resolución del estado de autenticación.
+        // Esto garantiza que el ClaimsPrincipal esté cargado antes de que el Router
+        // evalúe el atributo [Authorize] de la ruta.
+        try
+        {
+            await AuthStateProvider.GetAuthenticationStateAsync();
+        }
+        catch (Exception ex)
+        {
+            // Esto captura las excepciones de interop durante el prerender
+            // y las ignora para que la aplicación no se detenga.
+            System.Diagnostics.Debug.WriteLine($"Error de AuthState en App.razor: {ex.Message}");
+        }
+
+        _isReady = true;
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -13,8 +39,16 @@
 </head>
 
 <body>
-    <Routes />
-    <script src="_framework/blazor.web.js"></script>
+    @if (_isReady)
+    {
+        <Routes />
+        <script src="_framework/blazor.web.js"></script>
+    }
+    else
+    {
+        <p>Cargando sesión...</p> @* O un spinner *@
+    }
 </body>
 
 </html>
+

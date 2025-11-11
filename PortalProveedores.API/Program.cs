@@ -22,7 +22,17 @@ var connectionString = config.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<PortalProveedoresDbContext>(options =>
     options.UseSqlServer(connectionString,
         // Habilitar "split queries" para mejorar performance en cargas complejas
-        o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
+        o =>
+        {
+            // 1. Configuración de Resiliencia (Reintento de Conexión)
+            o.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null // Usar los códigos de error predeterminados
+            );
+            // 2. Configuración de Query Splitting (Se mantiene la optimización de rendimiento)
+            o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        })
 );
 
 // 2. Configurar ASP.NET Core Identity

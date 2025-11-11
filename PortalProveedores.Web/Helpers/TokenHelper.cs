@@ -1,10 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace PortalProveedores.Web.Helpers
 {
     public static class TokenHelper
     {
         // El tipo de claim estándar para roles en JWT es ClaimTypes.Role
+        //private const string RoleClaimType = ClaimTypes.Role;
         private const string RoleClaimType = "role";
 
         /// <summary>

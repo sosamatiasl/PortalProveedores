@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.IdentityModel.Tokens;
+using PortalProveedores.Domain.Enums;
 using PortalProveedores.Web.Auth;
 using PortalProveedores.Web.Components;
 using PortalProveedores.Web.Handlers;
 using PortalProveedores.Web.Services;
 using System.Text;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,7 +44,7 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
-    }; ;
+    };
 });
 builder.Services.AddScoped<IAuthorizationHandler, HasNoOperationalRoleHandler>();
 builder.Services.AddAuthorization(options =>
@@ -53,7 +54,18 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser();
         policy.AddRequirements(new HasNoOperationalRoleRequirement());
     });
+
+    options.AddPolicy("ProveedorAccess", policy =>
+    {
+        // La CLAVE: .RequireRole() con múltiples argumentos es una lógica OR.
+        // El usuario necesita AL MENOS UNO de los roles listados.
+        policy.RequireRole(
+            nameof(TipoRolUsuario.AdministrativoProveedor),
+            nameof(TipoRolUsuario.DespachanteProveedor)
+        );
+    });
 });
+builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
 
 // 5. Registrar los servicios de negocio
@@ -65,10 +77,10 @@ builder.Services.AddHttpClient("ApiGateway", client =>
                   ?? throw new InvalidOperationException("ApiSettings:BaseUrl no está configurado.");
     client.BaseAddress = new Uri(baseUrl);
 }).AddHttpMessageHandler<AuthorizationTokenHandler>();
-builder.Services.AddScoped<ITokenStorageService, TokenStorageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProviderService, ProviderService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, BlazorAuthorizationMiddlewareResultHandler>();
 
 var app = builder.Build();
 
@@ -82,8 +94,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseRouting();
 
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 

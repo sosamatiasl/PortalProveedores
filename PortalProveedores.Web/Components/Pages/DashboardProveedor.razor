@@ -1,21 +1,38 @@
 ﻿@page "/dashboard-proveedor"
 @layout MainLayout
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
-@attribute [Authorize(Roles = DashboardUserRoles.RolProveedor)]
+@inject ApiAuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = "AdministrativoProveedor")]
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using PortalProveedores.Domain.Enums
 @using PortalProveedores.Domain.Constants
+@using PortalProveedores.Web.Auth
 @using PortalProveedores.Web.Components.Layout
+@using PortalProveedores.Web.Services
+@using System.Security.Claims
 
 <PageTitle>Dashboard Proveedor</PageTitle>
 
 <div class="container mt-5">
     <h1>Panel de Control de Proveedores</h1>
+
+    @* Bloque de Diagnóstico: Muestra la información de la identidad actual *@
+    <AuthorizeView>
+        <NotAuthorized>
+            <p>Estado de Autenticación: **NO AUTORIZADO** (El problema persiste)</p>
+        </NotAuthorized>
+        <Authorizing>
+            <p>Cargando Estado...</p>
+        </Authorizing>
+    </AuthorizeView>
+    @* Fin del Bloque de Diagnóstico *@
+
     <p>Bienvenido al área de proveedores. Aquí puedes gestionar remitos, órdenes de compra y cotizaciones.</p>
     
     @* Puedes mostrar el rol actual para verificar *@
-    <AuthorizeView Roles="@DashboardUserRoles.RolProveedor">
+    <AuthorizeView Roles="@nameof(TipoRolUsuario.AdministrativoProveedor)">
         <p class="alert alert-success">¡Acceso concedido! Tienes el rol **@TipoRolUsuario.AdministrativoProveedor**.</p>
     </AuthorizeView>
     

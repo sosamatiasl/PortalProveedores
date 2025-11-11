@@ -11,18 +11,19 @@ namespace PortalProveedores.Web.Services
     // Nota: El servicio debe ser 'public' para la inyección de dependencias.
     public class TokenStorageService : ITokenStorageService
     {
-        //private readonly IJSRuntime _jsRuntime;
+        private readonly IJSRuntime _jsRuntime;
         private readonly ProtectedLocalStorage _protectedLocalStorage;
         private readonly IHttpContextAccessor _httpContextAccesor;
         private const string AuthTokenKey = "authToken";
         private const string RefreshTokenKey = "refreshToken";
         private string? _cachedAuthToken;
 
-        public TokenStorageService(/*IJSRuntime jsRuntime*/
+        public TokenStorageService(
+            IJSRuntime jsRuntime,
             ProtectedLocalStorage protectedLocalStorage,
             IHttpContextAccessor httpContextAccesor)
         {
-            //_jsRuntime = jsRuntime;
+            _jsRuntime = jsRuntime;
             _protectedLocalStorage = protectedLocalStorage;
             _httpContextAccesor = httpContextAccesor;
         }
@@ -48,8 +49,26 @@ namespace PortalProveedores.Web.Services
                 return _cachedAuthToken;
             }
 
-            if (_httpContextAccesor.HttpContext != null)
+            // GUARDIA CONTRA PRERENDERING:
+            // Si HttpContext NO es null, significa que está en la fase de Server-Side Rendering (Prerender).
+            // En este caso, el token NO está disponible aún en ProtectedLocalStorage y fallaría el interop.
+            if (_httpContextAccesor.HttpContext.Response.HasStarted == false)
             {
+                return null;
+            }
+
+            try
+            {
+                await _jsRuntime.InvokeVoidAsync("eval", "null");
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"JS Interop no disponible (Prerender). No se puede leer el token.\r\n{ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error inesperado en el chequeo de JS Interop: {ex.Message}");
                 return null;
             }
 
@@ -64,10 +83,9 @@ namespace PortalProveedores.Web.Services
                     _cachedAuthToken = result.Value;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.WriteLine($"{DateTime.Now} - {ex}");
-                _cachedAuthToken = null;
+                return null;
             }
 
             return _cachedAuthToken;

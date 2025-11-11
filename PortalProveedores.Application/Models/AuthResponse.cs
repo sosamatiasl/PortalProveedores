@@ -37,5 +37,10 @@ namespace PortalProveedores.Application.Models
         /// Rol principal del usuario (ej: 'Cliente' o 'Proveedor').
         /// </summary>
         public string RolDefecto { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Roles del usuario
+        /// </summary>
+        public IList<string>? Roles { get; set; }
     }
 }

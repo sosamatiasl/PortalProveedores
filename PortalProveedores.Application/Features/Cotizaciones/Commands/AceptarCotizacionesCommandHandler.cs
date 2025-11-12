@@ -84,7 +84,7 @@ namespace PortalProveedores.Application.Features.Cotizaciones.Commands
                 }
 
                 // 6. Actualizar el estado de la Orden de Compra
-                ordenCompra.Estado = EstadoOrdenCompra.Cotizada;
+                ordenCompra.Estado = EstadoOrdenCompra.CotizacionAceptada;
 
                 // 7. Guardar todos los cambios
                 await _context.SaveChangesAsync(cancellationToken);

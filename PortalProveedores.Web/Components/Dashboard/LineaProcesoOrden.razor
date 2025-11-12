@@ -1,0 +1,102 @@
+﻿@using PortalProveedores.Domain.Enums
+@using PortalProveedores.Web.Models
+
+<div class="mb-4">
+    <h4>Proceso de Órden de Compra #1234 (Ejemplo)</h4>
+</div>
+
+<div class="timeline-container">
+    @foreach (var etapa in EtapasProceso)
+    {
+        // Determinar si la etapa es actual, completada o pendiente
+        var estadoClase = GetEstadoClase(etapa.Estado);
+
+        <div class="timeline-item @estadoClase" @onclick="() => SeleccionarEtapa(etapa)">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <h5 class="mb-1">@etapa.Nombre</h5>
+                <small class="text-muted">@(etapa.Fecha.HasValue? etapa.Fecha.Value.ToShortDateString() : "Pendiente")</small>
+                <p class="mb-0">@etapa.DescripcionCorta</p>
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+    // Evento de salida para notificar al padre qué detalle mostrar
+    [Parameter]
+    public EventCallback<ModelDTO_DetalleEtapa> OnEtapaClick { get; set; }
+
+    // DTO interno para la visualización de la línea de tiempo
+    private class EtapaTimelineDTO
+    {
+        public EstadoOrdenCompra Estado { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string DescripcionCorta { get; set; } = string.Empty;
+        public DateTime? Fecha { get; set; }
+    }
+
+    private List<EtapaTimelineDTO> EtapasProceso = new List<EtapaTimelineDTO>();
+
+    // Estado de la orden para el ejemplo
+    private EstadoOrdenCompra EstadoActualOrden = EstadoOrdenCompra.CotizacionAceptada;
+
+
+    protected override void OnInitialized()
+    {
+        // Simulación de datos (debería venir de una inyección de IOrderService)
+        EtapasProceso = new List<EtapaTimelineDTO>
+        {
+            new EtapaTimelineDTO { Estado = EstadoOrdenCompra.Creada, Nombre = "Orden Creada", DescripcionCorta = "El cliente envió la solicitud.", Fecha = DateTime.Now.AddDays(-5) },
+            new EtapaTimelineDTO { Estado = EstadoOrdenCompra.CotizacionEnviada, Nombre = "Cotización Enviada", DescripcionCorta = "Se envió la cotización #2024-55.", Fecha = DateTime.Now.AddDays(-4) },
+            new EtapaTimelineDTO { Estado = EstadoOrdenCompra.CotizacionAceptada, Nombre = "Cotización Aceptada", DescripcionCorta = "El cliente aceptó la cotización #2024-55.", Fecha = DateTime.Now.AddDays(-3) },
+            new EtapaTimelineDTO { Estado = EstadoOrdenCompra.EnPreparacion, Nombre = "En Preparación", DescripcionCorta = "El pedido está en el almacén.", Fecha = null },
+            new EtapaTimelineDTO { Estado = EstadoOrdenCompra.Enviada, Nombre = "Orden Enviada", DescripcionCorta = "Pendiente de despacho.", Fecha = null },
+            new EtapaTimelineDTO { Estado = EstadoOrdenCompra.Completada, Nombre = "Completada", DescripcionCorta = "Finalizado.", Fecha = null },
+        };
+    }
+
+    private string GetEstadoClase(EstadoOrdenCompra etapa)
+    {
+        if (etapa <= EstadoActualOrden)
+        {
+            return etapa == EstadoActualOrden ? "current" : "completed";
+        }
+        return "pending";
+    }
+
+    private async Task SeleccionarEtapa(EtapaTimelineDTO etapa)
+    {
+        // 1. Simulación de la carga del DTO detallado
+        var detalle = CrearDetalleSimulado(etapa);
+
+        // 2. Notificar al componente padre
+        await OnEtapaClick.InvokeAsync(detalle);
+    }
+
+    private ModelDTO_DetalleEtapa CrearDetalleSimulado(EtapaTimelineDTO etapa)
+    {
+        // **Esta lógica DEBE ser reemplazada por una llamada a IOrderService.GetDetalleEtapaAsync(OrdenId, Etapa)**
+
+        var detalle = new ModelDTO_DetalleEtapa
+        {
+            EtapaActual = etapa.Estado,
+            FechaMovimiento = etapa.Fecha,
+            OrdenCompraId = 1234,
+            NumeroReferencia = "OC-9876",
+            ItemsSolicitados = new List<string> { "Tornillos M8", "Filtros de Aire (x10)" },
+            Descripcion = etapa.DescripcionCorta
+        };
+
+        if (etapa.Estado == EstadoOrdenCompra.CotizacionAceptada)
+        {
+            detalle.Cotizaciones = new List<ModelDTO_CotizacionRespuesta>
+            {
+                new ModelDTO_CotizacionRespuesta { CotizacionId = 54, MontoTotal = 1200.50M, Estado = "Rechazada", FechaEnvio = DateTime.Now.AddDays(-5) },
+                new ModelDTO_CotizacionRespuesta { CotizacionId = 55, MontoTotal = 950.00M, Estado = "Aceptada", FechaEnvio = DateTime.Now.AddDays(-4) }
+            };
+        }
+        return detalle;
+    }
+}

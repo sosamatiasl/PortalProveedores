@@ -1,0 +1,131 @@
+﻿@page "/cliente/proceso-orden"
+@layout MainLayout
+@attribute [Authorize(Roles = DashboardUserRoles.RolCliente)]
+
+@using Microsoft.AspNetCore.Authorization
+@using PortalProveedores.Domain.Constants
+@using PortalProveedores.Web.Components.Layout
+@using PortalProveedores.Web.Models
+@using PortalProveedores.Domain.Enums
+@using PortalProveedores.Web.Components.Dashboard
+
+<div class="p-3">
+    <h3>Línea de Proceso de Órdenes Emitidas</h3>
+    <p class="text-muted">Selecciona una orden de compra que has emitido para ver su circuito actual y las cotizaciones recibidas.</p>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4">
+            <h4>Mis Órdenes de Compra</h4>
+            <ul class="list-group">
+                @foreach (var orden in OrdenesDisponibles)
+                {
+                    <li class="list-group-item @(OrdenSeleccionada?.Id == orden.Id ? "active" : "")"
+                        @onclick="() => SeleccionarOrden(orden)">
+                        Orden #@orden.NumeroReferencia - @orden.Estado
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="col-md-8">
+            @if (OrdenSeleccionada != null)
+            {
+                <h4>Proceso para OC #@OrdenSeleccionada.NumeroReferencia</h4>
+
+                <LineaProcesoOrden OnEtapaClick="HandleEtapaClick" />
+
+                @if (DetalleEtapaSeleccionada != null)
+                {
+                    <div class="mt-4 p-3 border rounded shadow-sm bg-light">
+                        <h5>Detalle de la Etapa: <span class="badge bg-primary">@DetalleEtapaSeleccionada.EtapaActual</span></h5>
+
+                        <dl class="row">
+                            <dt class="col-sm-4">OC Origen:</dt>
+                            <dd class="col-sm-8">@DetalleEtapaSeleccionada.NumeroReferencia</dd>
+
+                            <dt class="col-sm-4">Fecha Movimiento:</dt>
+                            <dd class="col-sm-8">@(DetalleEtapaSeleccionada.FechaMovimiento?.ToShortDateString() ?? "N/A")</dd>
+                        </dl>
+
+                        <h6>Items Solicitados:</h6>
+                        <ul>
+                            @foreach (var item in DetalleEtapaSeleccionada.ItemsSolicitados)
+                            {
+                                <li>@item</li>
+                            }
+                        </ul>
+
+                        @if (DetalleEtapaSeleccionada.Cotizaciones.Any())
+                        {
+                            <h6>Cotizaciones Recibidas:</h6>
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr><th>ID Cot.</th><th>Monto Total</th><th>Estado</th></tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cot in DetalleEtapaSeleccionada.Cotizaciones)
+                                    {
+                                        <tr>
+                                            <td>#@cot.CotizacionId</td>
+                                            <td>$@cot.MontoTotal</td>
+                                            <td>
+                                                <span class="badge @(cot.Estado == "Aceptada" ? "bg-success" : cot.Estado == "Rechazada" ? "bg-danger" : "bg-secondary")">
+                                                    @cot.Estado
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Seleccione una orden de la lista para ver su proceso detallado.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    // Reutilizar el modelo simple para la lista (definido en ProcesoOrdenProveedor o centralizarlo)
+    private class ModelDTO_OrdenSimple
+    {
+        public int Id { get; set; }
+        public string NumeroReferencia { get; set; } = string.Empty;
+        public EstadoOrdenCompra Estado { get; set; } // Enum from Domain
+    }
+
+    private List<ModelDTO_OrdenSimple> OrdenesDisponibles = new();
+    private ModelDTO_OrdenSimple? OrdenSeleccionada;
+    private ModelDTO_DetalleEtapa? DetalleEtapaSeleccionada;
+
+    protected override void OnInitialized()
+    {
+        // Simulación de carga de órdenes EMITIDAS por el cliente
+        OrdenesDisponibles = new List<ModelDTO_OrdenSimple>
+        {
+            new ModelDTO_OrdenSimple { Id = 201, NumeroReferencia = "OC-C-001", Estado = EstadoOrdenCompra.Creada },
+            new ModelDTO_OrdenSimple { Id = 202, NumeroReferencia = "OC-C-002", Estado = EstadoOrdenCompra.CotizacionAceptada },
+            new ModelDTO_OrdenSimple { Id = 203, NumeroReferencia = "OC-C-003", Estado = EstadoOrdenCompra.Completada }
+        };
+    }
+
+    private void SeleccionarOrden(ModelDTO_OrdenSimple orden)
+    {
+        OrdenSeleccionada = orden;
+        DetalleEtapaSeleccionada = null; // Limpiar el detalle al cambiar de orden
+    }
+
+    private void HandleEtapaClick(ModelDTO_DetalleEtapa detalle)
+    {
+        // Se recibe el detalle generado por LineaProcesoOrden.razor
+        DetalleEtapaSeleccionada = detalle;
+        StateHasChanged();
+    }
+}

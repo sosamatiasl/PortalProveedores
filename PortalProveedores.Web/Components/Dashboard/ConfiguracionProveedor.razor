@@ -1,0 +1,120 @@
+﻿@page "/proveedor/configuracion"
+@layout MainLayout
+@attribute [Authorize(Roles = DashboardUserRoles.RolProveedor)]
+
+@using Microsoft.AspNetCore.Authorization
+@using PortalProveedores.Domain.Constants
+@using PortalProveedores.Web.Components.Layout
+@using PortalProveedores.Web.Models
+@using System.ComponentModel.DataAnnotations
+
+<div class="p-3">
+    <h3>Configuración de la Cuenta</h3>
+    <p class="text-muted">Actualiza los datos fiscales y de contacto de tu empresa.</p>
+    <hr />
+
+    <EditForm Model="@ConfiguracionModel" OnValidSubmit="@GuardarConfiguracion">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Nombre Fiscal:</label>
+                <InputText class="form-control" @bind-Value="ConfiguracionModel.NombreFiscal" />
+                <ValidationMessage For="@(() => ConfiguracionModel.NombreFiscal)" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>CUIT / ID Fiscal:</label>
+                <InputText class="form-control" @bind-Value="ConfiguracionModel.IdentificacionFiscal" />
+                <ValidationMessage For="@(() => ConfiguracionModel.IdentificacionFiscal)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Dirección Principal:</label>
+            <InputText class="form-control" @bind-Value="ConfiguracionModel.DireccionPrincipal" />
+            <ValidationMessage For="@(() => ConfiguracionModel.DireccionPrincipal)" />
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Email de Contacto:</label>
+                <InputText class="form-control" @bind-Value="ConfiguracionModel.EmailContacto" />
+                <ValidationMessage For="@(() => ConfiguracionModel.EmailContacto)" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Teléfono:</label>
+                <InputText class="form-control" @bind-Value="ConfiguracionModel.Telefono" />
+                <ValidationMessage For="@(() => ConfiguracionModel.Telefono)" />
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(MensajeEstado))
+        {
+            <div class="alert @(ExitoGuardado ? "alert-success" : "alert-danger") mt-3">
+                @MensajeEstado
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary mt-3" disabled="@Guardando">
+            @if (Guardando)
+            {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true">Guardando...</span>
+                        }
+            else
+            {
+                <span>Guardar Cambios</span>
+            }
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    // [Inject] public IProviderService ProviderService { get; set; } // Asumido
+
+    private ModelDTO_ConfiguracionProveedor ConfiguracionModel = new();
+    private bool Guardando = false;
+    private string MensajeEstado = string.Empty;
+    private bool ExitoGuardado = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 1. Simular la carga de datos (reemplazar con llamada a la API)
+        // var data = await ProviderService.GetConfiguracionProveedorAsync();
+        // ConfiguracionModel = Mapeador.Mapear(data);
+
+        // Datos de ejemplo
+        ConfiguracionModel = new ModelDTO_ConfiguracionProveedor
+        {
+            NombreFiscal = "Suministros Globales S.A.",
+            IdentificacionFiscal = "20301234567",
+            DireccionPrincipal = "Av. Siempre Viva 742, Springfield",
+            EmailContacto = "contacto@suministros.com",
+            Telefono = "11-4567-8901"
+        };
+    }
+
+    private async Task GuardarConfiguracion()
+    {
+        Guardando = true;
+        MensajeEstado = string.Empty;
+
+        try
+        {
+            // 2. Simular llamada al servicio para actualizar datos (reemplazar con la API)
+            // await ProviderService.UpdateConfiguracionProveedorAsync(ConfiguracionModel);
+            await Task.Delay(1500); // Simulación de tiempo de espera de red
+
+            MensajeEstado = "¡Configuración guardada exitosamente!";
+            ExitoGuardado = true;
+        }
+        catch (Exception ex)
+        {
+            MensajeEstado = $"Error al guardar: {ex.Message}";
+            ExitoGuardado = false;
+        }
+        finally
+        {
+            Guardando = false;
+        }
+    }
+}

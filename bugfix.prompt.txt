@@ -1,0 +1,14 @@
+IDEA:
+¡Muchas gracias! Observo que tampoco se visualiza la opción de Cerrar Sesión. ¿Puede ser que no esté comprobando que el usuario está autenticado?
+
+DESARROLLO:
+Si hay referencias a Modelos, revisa entre el código que has generado en todo el historial de la conversación, para mantener las referencias coherentemente con el código que se va generando en nuestra conversación. No debes dar por sentado que hay código generado si no lo has generado previamente. Si es necesario generar nuevo código, debes especificar en qué proyecto, carpeta y subcarpeta debe ser generado.
+Básate siempre en el prompt inicial con el cual hemos comenzado este chat, para mantener la misma estructura y arquitectura.
+
+LIMITES:
+Se debe mantener el idioma español para la definicion de modelos. Evita generar nombres de modelos en inglés, ya que en el proyecto Application y Domain se han definidos modelos de negocio en idioma español. Se debe mantener una coherencia para que contribuya al mantenimiento y escalabilidad del código.
+También debes diferenciar los modelos que son propios de la capa de negocio, de aquellos que son modelos DTO con el fin de preparar los datos para su uso en el proyecto web.
+Por ejemplo, en el proyecto Domain ya existe el modelo de negocio "OrdenCompra", que representa el modelos negocio para una orden de compra. En este caso, por ejemplo, si es necesario crear un DTO para la Orden de compra porque se necesita utilizar en el proyecto web para poder mostrar los datos de una forma personalizada, entonces este DTO debe ser creado en el proyecto Web, y no en el proyecto Domain.
+Para todas las clases que se necesiten crear que sean DTO, el nombre de la clase debe comenzar con "ModelDTO_", seguido del nombre del modelo. Esto es con el fin de diferenciar el modelo DTO, del modelo de negocio. Así, se mantiene la independencia de proyectos, se mantiene una clean architecture y no se exponen datos sensibles de negocio en el front-end que no son necesarios exponer.
+
+Antes de finalizar tu respuesta, verifica que todo el código que envíes coincida con la documentación de Microsoft y sus respectivos enlaces de GitHub en cuanto a .NET 8 y Blazor Web App. Ignora todo el contenido que sea de web assembly y de otras versiones de .NET que no sean la número 8. Si encuentras inconsistencias, corrígelas y vuelve a ejecutar el bucle de comprobación con la documentación de Microsoft y GitHub, así sucesivamente hasta que corrobores que todo el código que has generado para esa repsuesta es correcto. Sólo una vez que hayas realizado este paso crucial, sólo entonces puedes enviarme la respuesta. Sino, no la envíes.

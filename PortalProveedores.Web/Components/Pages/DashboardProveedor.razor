@@ -1,40 +1,56 @@
 ﻿@page "/dashboard-proveedor"
 @layout MainLayout
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
-@inject ApiAuthenticationStateProvider AuthStateProvider
-@inject IJSRuntime JS
-@attribute [Authorize(Roles = "AdministrativoProveedor")]
+@attribute [Authorize(Roles = DashboardUserRoles.RolProveedor)]
+
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using PortalProveedores.Domain.Enums
 @using PortalProveedores.Domain.Constants
 @using PortalProveedores.Web.Auth
 @using PortalProveedores.Web.Components.Layout
+@using PortalProveedores.Web.Components.Dashboard
+@using PortalProveedores.Web.Models
 @using PortalProveedores.Web.Services
 @using System.Security.Claims
 
 <PageTitle>Dashboard Proveedor</PageTitle>
 
-<div class="container mt-5">
+<div class="p-4">
     <h1>Panel de Control de Proveedores</h1>
+    <p class="text-muted">Bienvenido al área de proveedores. Utiliza el menú lateral para gestionar tus tareas.</p>
 
-    @* Bloque de Diagnóstico: Muestra la información de la identidad actual *@
-    <AuthorizeView>
-        <NotAuthorized>
-            <p>Estado de Autenticación: **NO AUTORIZADO** (El problema persiste)</p>
-        </NotAuthorized>
-        <Authorizing>
-            <p>Cargando Estado...</p>
-        </Authorizing>
+    <AuthorizeView Roles="@DashboardUserRoles.RolProveedor">
+        <Authorized Context="auth">
+            <div class="alert alert-info mt-3">
+                Tu rol actual: **@(auth.User.FindFirst("role"/*ClaimTypes.Role*/)?.Value ?? "No especificado")**
+            </div>
+        </Authorized>
     </AuthorizeView>
-    @* Fin del Bloque de Diagnóstico *@
 
-    <p>Bienvenido al área de proveedores. Aquí puedes gestionar remitos, órdenes de compra y cotizaciones.</p>
-    
-    @* Puedes mostrar el rol actual para verificar *@
-    <AuthorizeView Roles="@nameof(TipoRolUsuario.AdministrativoProveedor)">
-        <p class="alert alert-success">¡Acceso concedido! Tienes el rol **@TipoRolUsuario.AdministrativoProveedor**.</p>
-    </AuthorizeView>
-    
-    @* Coloca aquí los componentes específicos del proveedor *@
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Cotizaciones Pendientes</h5>
+                    <p class="card-text fs-2">3</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Órdenes Nuevas</h5>
+                    <p class="card-text fs-2">7</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Entregas Programadas</h5>
+                    <p class="card-text fs-2">4</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -136,3 +136,66 @@ SD
         border-color: #28a745;
         transform: translateY(-2px);
     }
+
+
+/* ------------------------------------------------------------------------------------------------------------------
+    DASHBOARD PROVEEDORES - ESTILOS PARA LA LÍNEA DE TIEMPO
+*/
+
+.timeline-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-left: 30px; /* Espacio para la línea vertical */
+}
+
+    /* La línea vertical central */
+    .timeline-container::after {
+        content: '';
+        position: absolute;
+        width: 3px;
+        background-color: #dee2e6; /* Gris claro de Bootstrap */
+        top: 0;
+        bottom: 0;
+        left: 10px;
+    }
+
+/* El punto (círculo) en cada ítem */
+.timeline-dot {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 0;
+    top: 0;
+    border-radius: 50%;
+    z-index: 1; /* Para que esté por encima de la línea */
+    border: 3px solid white;
+    box-sizing: border-box;
+}
+
+/* Estado de los ítems */
+.timeline-item {
+    padding: 10px 0 10px 20px; /* Separación del contenido */
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .timeline-item:hover {
+        background-color: #f8f9fa; /* Color al pasar el ratón */
+        border-radius: 5px;
+    }
+
+    /* Clases de colores para los puntos */
+    .timeline-item.completed .timeline-dot {
+        background-color: #198754; /* Verde (Completed) */
+    }
+
+    .timeline-item.current .timeline-dot {
+        background-color: #0d6efd; /* Azul (Current/Active) */
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.5); /* Efecto de resplandor */
+    }
+
+    .timeline-item.pending .timeline-dot {
+        background-color: #ffc107; /* Amarillo (Pending) */
+    }

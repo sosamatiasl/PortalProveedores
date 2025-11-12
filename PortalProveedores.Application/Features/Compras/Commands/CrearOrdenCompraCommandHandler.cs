@@ -73,7 +73,7 @@ namespace PortalProveedores.Application.Features.Compras.Commands
                 NumeroOrden = request.NumeroOrden,
                 Detalles = request.Detalles,
                 FechaEmision = DateTime.UtcNow,
-                Estado = EstadoOrdenCompra.Pendiente,
+                Estado = EstadoOrdenCompra.Creada,
                 Items = ordenCompraItems // Asignar la lista validada
             };
 

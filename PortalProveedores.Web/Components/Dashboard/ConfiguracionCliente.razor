@@ -1,0 +1,113 @@
+﻿@page "/cliente/configuracion"
+@layout MainLayout
+@attribute [Authorize(Roles = DashboardUserRoles.RolCliente)]
+
+@using Microsoft.AspNetCore.Authorization
+@using PortalProveedores.Domain.Constants
+@using PortalProveedores.Web.Components.Layout
+@using PortalProveedores.Web.Models
+@using System.ComponentModel.DataAnnotations
+
+<div class="p-3">
+    <h3>Configuración de la Cuenta de Cliente</h3>
+    <p class="text-muted">Actualiza los datos de tu empresa y puntos de contacto.</p>
+    <hr />
+
+    <EditForm Model="@ConfiguracionModel" OnValidSubmit="@GuardarConfiguracion">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Nombre de la Empresa:</label>
+                <InputText class="form-control" @bind-Value="ConfiguracionModel.NombreEmpresa" />
+                <ValidationMessage For="@(() => ConfiguracionModel.NombreEmpresa)" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>CUIT / ID Fiscal:</label>
+                <InputText class="form-control" @bind-Value="ConfiguracionModel.IdentificacionFiscal" />
+                <ValidationMessage For="@(() => ConfiguracionModel.IdentificacionFiscal)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Dirección de Oficina Principal:</label>
+            <InputText class="form-control" @bind-Value="ConfiguracionModel.DireccionOficinaPrincipal" />
+            <ValidationMessage For="@(() => ConfiguracionModel.DireccionOficinaPrincipal)" />
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Email Administrativo:</label>
+                <InputText class="form-control" @bind-Value="ConfiguracionModel.EmailAdministrativo" />
+                <ValidationMessage For="@(() => ConfiguracionModel.EmailAdministrativo)" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Teléfono:</label>
+                <InputText class="form-control" @bind-Value="ConfiguracionModel.Telefono" />
+                <ValidationMessage For="@(() => ConfiguracionModel.Telefono)" />
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(MensajeEstado))
+        {
+            <div class="alert @(ExitoGuardado ? "alert-success" : "alert-danger") mt-3">
+                @MensajeEstado
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary mt-3" disabled="@Guardando">
+            @if (Guardando)
+            {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true">Guardando...</span>
+            }
+            else
+            {
+                <span>Guardar Cambios</span>
+            }
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    private ModelDTO_ConfiguracionCliente ConfiguracionModel = new();
+    private bool Guardando = false;
+    private string MensajeEstado = string.Empty;
+    private bool ExitoGuardado = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Lógica para cargar los datos del cliente
+        ConfiguracionModel = new ModelDTO_ConfiguracionCliente
+        {
+            NombreEmpresa = "Retail Solutions S.A.",
+            IdentificacionFiscal = "30509876543",
+            DireccionOficinaPrincipal = "Calle Ficticia 123, Ciudad Autónoma",
+            EmailAdministrativo = "admin@retail.com",
+            Telefono = "0800-111-2222"
+        };
+    }
+
+    private async Task GuardarConfiguracion()
+    {
+        Guardando = true;
+        MensajeEstado = string.Empty;
+
+        try
+        {
+            // Simulación de llamada a la API
+            await Task.Delay(1500);
+
+            MensajeEstado = "¡Configuración de cliente guardada exitosamente!";
+            ExitoGuardado = true;
+        }
+        catch (Exception ex)
+        {
+            MensajeEstado = $"Error al guardar: {ex.Message}";
+            ExitoGuardado = false;
+        }
+        finally
+        {
+            Guardando = false;
+        }
+    }
+}

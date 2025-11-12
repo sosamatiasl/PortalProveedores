@@ -1,15 +1,12 @@
 ﻿@page "/login"
-@* @rendermode InteractiveServer *@
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
-@inject IJSRuntime JS
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
 @using PortalProveedores.Application.Models
 @using PortalProveedores.Domain.Enums
 @using PortalProveedores.Web.Components.Layout
 @using PortalProveedores.Web.Services
 @using PortalProveedores.Web.Helpers
 @layout EmptyLayout
-@inject IAuthService AuthService
-@inject NavigationManager Navigation
 
 <PageTitle>Iniciar Sesión</PageTitle>
 

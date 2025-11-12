@@ -1,0 +1,130 @@
+﻿@page "/proveedor/proceso-orden"
+@layout MainLayout
+@attribute [Authorize(Roles = DashboardUserRoles.RolProveedor)]
+
+@using Microsoft.AspNetCore.Authorization
+@using PortalProveedores.Domain.Constants
+@using PortalProveedores.Web.Components.Layout
+@using PortalProveedores.Web.Models
+@using PortalProveedores.Domain.Enums
+@using PortalProveedores.Web.Components.Dashboard
+
+<div class="p-3">
+    <h3>Línea de Proceso de Órdenes</h3>
+    <p class="text-muted">Selecciona una orden de compra para visualizar su circuito de procesamiento.</p>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4">
+            <h4>Órdenes Recibidas</h4>
+            <ul class="list-group">
+                @foreach (var orden in OrdenesDisponibles)
+                {
+                    <li class="list-group-item @(OrdenSeleccionada?.Id == orden.Id ? "active" : "")"
+                        @onclick="() => SeleccionarOrden(orden)">
+                        Orden #@orden.NumeroReferencia - @orden.Estado
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="col-md-8">
+            @if (OrdenSeleccionada != null)
+            {
+                <h4>Detalle de Proceso para OC #@OrdenSeleccionada.NumeroReferencia</h4>
+
+                <LineaProcesoOrden OnEtapaClick="HandleEtapaClick" />
+
+                @if (DetalleEtapaSeleccionada != null)
+                {
+                    <div class="mt-4 p-3 border rounded shadow-sm bg-light">
+                        <h5>Detalle de la Etapa: <span class="badge bg-primary">@DetalleEtapaSeleccionada.EtapaActual</span></h5>
+
+                        <dl class="row">
+                            <dt class="col-sm-4">OC Origen:</dt>
+                            <dd class="col-sm-8">@DetalleEtapaSeleccionada.NumeroReferencia</dd>
+
+                            <dt class="col-sm-4">Fecha Movimiento:</dt>
+                            <dd class="col-sm-8">@(DetalleEtapaSeleccionada.FechaMovimiento?.ToShortDateString() ?? "N/A")</dd>
+                        </dl>
+
+                        <h6>Items Solicitados:</h6>
+                        <ul>
+                            @foreach (var item in DetalleEtapaSeleccionada.ItemsSolicitados)
+                            {
+                                <li>@item</li>
+                            }
+                        </ul>
+
+                        @if (DetalleEtapaSeleccionada.Cotizaciones.Any())
+                        {
+                            <h6>Cotizaciones:</h6>
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr><th>ID</th><th>Monto</th><th>Estado</th></tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cot in DetalleEtapaSeleccionada.Cotizaciones)
+                                    {
+                                        <tr>
+                                            <td>#@cot.CotizacionId</td>
+                                            <td>$@cot.MontoTotal</td>
+                                            <td><span class="badge bg-secondary">@cot.Estado</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Seleccione una orden de la lista para ver su proceso.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    // Modelo de datos para la lista de órdenes (necesario solo para la selección)
+    private class ModelDTO_OrdenSimple
+    {
+        public int Id { get; set; }
+        public string NumeroReferencia { get; set; } = string.Empty;
+        public EstadoOrdenCompra Estado { get; set; }
+    }
+
+    private List<ModelDTO_OrdenSimple> OrdenesDisponibles = new();
+    private ModelDTO_OrdenSimple? OrdenSeleccionada;
+    private ModelDTO_DetalleEtapa? DetalleEtapaSeleccionada;
+
+    protected override void OnInitialized()
+    {
+        // Simulación de carga de órdenes del proveedor
+        OrdenesDisponibles = new List<ModelDTO_OrdenSimple>
+        {
+            new ModelDTO_OrdenSimple { Id = 101, NumeroReferencia = "OC-1234", Estado = EstadoOrdenCompra.CotizacionAceptada },
+            new ModelDTO_OrdenSimple { Id = 102, NumeroReferencia = "OC-9876", Estado = EstadoOrdenCompra.EnPreparacion },
+            new ModelDTO_OrdenSimple { Id = 103, NumeroReferencia = "OC-5555", Estado = EstadoOrdenCompra.Creada }
+        };
+
+        // Seleccionar la primera por defecto para el ejemplo
+        // SeleccionarOrden(OrdenesDisponibles.First());
+    }
+
+    private void SeleccionarOrden(ModelDTO_OrdenSimple orden)
+    {
+        OrdenSeleccionada = orden;
+        DetalleEtapaSeleccionada = null; // Limpiar el detalle al cambiar de orden
+    }
+
+    private void HandleEtapaClick(ModelDTO_DetalleEtapa detalle)
+    {
+        // Se recibe el detalle generado por LineaProcesoOrden.razor
+        DetalleEtapaSeleccionada = detalle;
+        StateHasChanged();
+    }
+}

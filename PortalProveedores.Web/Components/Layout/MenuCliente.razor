@@ -1,0 +1,51 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 250px; min-height: 100vh;">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
+        <span class="fs-5 fw-bold text-success">Portal Cliente</span>
+    </a>
+    <hr>
+
+    <ul class="nav nav-pills flex-column mb-auto">
+
+        <li class="nav-item">
+            <NavLink class="nav-link" Href="/dashboard-cliente" Match="NavLinkMatch.Prefix"
+                     @onclick="() => OnMenuClicked.InvokeAsync(VISTA_DASHBOARD)">
+                <i class="bi bi-house-door-fill me-2"></i>
+                Dashboard
+            </NavLink>
+        </li>
+
+        <li>
+            <button class="nav-link w-100 text-start" @onclick="() => OnMenuClicked.InvokeAsync(VISTA_CONFIGURACION)">
+                <i class="bi bi-person-gear me-2"></i>
+                Configuración
+            </button>
+        </li>
+
+        <li>
+            <button class="nav-link w-100 text-start" @onclick="() => OnMenuClicked.InvokeAsync(VISTA_PROCESO_ORDEN)">
+                <i class="bi bi-graph-up me-2"></i>
+                Línea de Proceso de Órdenes
+            </button>
+        </li>
+
+    </ul>
+    <hr>
+
+    <button class="btn btn-outline-danger w-100 mt-auto">
+        <i class="bi bi-box-arrow-right me-2"></i>
+        Cerrar Sesión
+    </button>
+</div>
+
+@code {
+    // Definición de constantes para evitar errores de sintaxis y mantener la coherencia
+    public const string VISTA_DASHBOARD = "Dashboard";
+    public const string VISTA_CONFIGURACION = "Configuracion";
+    public const string VISTA_PROCESO_ORDEN = "ProcesoOrden";
+
+    // Evento que notifica al componente padre (DashboardCliente) qué vista mostrar
+    [Parameter]
+    public EventCallback<string> OnMenuClicked { get; set; }
+}

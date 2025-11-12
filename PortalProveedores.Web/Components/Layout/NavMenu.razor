@@ -1,30 +1,122 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using PortalProveedores.Domain.Constants
+@using PortalProveedores.Domain.Enums
+@using PortalProveedores.Web.Services
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">PortalProveedores.Web</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
+        
+        <div class="container-fluid">
+            <a class="navbar-brand" href="">PortalProveedores.Web</a>
+            <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+        <AuthorizeView Roles="@DashboardUserRoles.RolProveedor">
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-primary">
+                <span>Portal Proveedor</span>
+            </h6>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/dashboard-proveedor" Match="NavLinkMatch.Prefix">
+                    <span class="bi bi-speedometer2" aria-hidden="true"></span> Dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/proveedor/ordenes-compra">
+                    <span class="bi bi-basket-fill" aria-hidden="true"></span> Órdenes de Compra
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/proveedor/cotizaciones">
+                    <span class="bi bi-list-check" aria-hidden="true"></span> Cotizaciones
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/proveedor/remitos">
+                    <span class="bi bi-truck" aria-hidden="true"></span> Remitos
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/proveedor/configuracion">
+                    <span class="bi bi-person-gear" aria-hidden="true"></span> Configuración
+                </NavLink>
+            </div>
+        </AuthorizeView>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+        <AuthorizeView Roles="@DashboardUserRoles.RolCliente">
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-success">
+                <span>Portal Cliente</span>
+            </h6>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/dashboard-cliente" Match="NavLinkMatch.Prefix">
+                    <span class="bi bi-house-door-fill" aria-hidden="true"></span> Dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/cliente/proceso-orden">
+                    <span class="bi bi-graph-up" aria-hidden="true"></span> Proceso de Órdenes
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/cliente/configuracion">
+                    <span class="bi bi-person-gear" aria-hidden="true"></span> Configuración de Cuenta
+                </NavLink>
+            </div>
+        </AuthorizeView>
+        
+        <AuthorizeView>
+            <Authorized>
+                 <div class="nav-item px-3 mt-4">
+                    <button class="nav-link btn btn-link w-100 text-start text-danger" @onclick="HandleLogout">
+                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Cerrar Sesión
+                    </button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                 <div class="nav-item px-3 mt-4">
+                    <NavLink class="nav-link" href="/login">
+                        <span class="bi bi-person-circle" aria-hidden="true"></span> Iniciar Sesión
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+        
     </nav>
 </div>
 
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.Logout();
+        // Redirección para asegurar que la página se refresque después de cerrar sesión
+        Navigation.NavigateTo("/", forceLoad: true); 
+    }
+}

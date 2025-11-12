@@ -109,10 +109,9 @@ namespace PortalProveedores.Web.Auth
                 var identity = new ClaimsIdentity(
                     token.Claims,
                     "jwtAuthType",
-                    ClaimTypes.Name,
-                    ClaimTypes.Role
+                    "nameid",
+                    "role"
                 );
-                //var identity = new ClaimsIdentity(token.Claims,"jwt");
 
                 return new ClaimsPrincipal(identity);
             }

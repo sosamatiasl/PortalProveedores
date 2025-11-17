@@ -2,7 +2,7 @@
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <NavMenu @ref=navMenuRef/>
     </div>
 
     <main>
@@ -21,3 +21,15 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    // 3. Campo para la referencia al NavMenu
+    private NavMenu? navMenuRef;
+
+    // 4. Método que se llama al hacer clic en el botón
+    private void ToggleNavMenu()
+    {
+        // Llama al método público del componente hijo
+        navMenuRef?.ToggleNavMenu();
+    }
+}

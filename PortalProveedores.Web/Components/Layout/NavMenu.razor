@@ -6,24 +6,24 @@
 @using PortalProveedores.Domain.Enums
 @using PortalProveedores.Web.Services
 
-<div class="top-row ps-3 navbar navbar-dark">
+@* <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">PortalProveedores.Web</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
-</div>
+</div> *@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         
-        <div class="container-fluid">
+       @*  <div class="container-fluid">
             <a class="navbar-brand" href="">PortalProveedores.Web</a>
             <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
-        </div>
+        </div> *@
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
@@ -87,14 +87,14 @@
             <Authorized>
                  <div class="nav-item px-3 mt-4">
                     <button class="nav-link btn btn-link w-100 text-start text-danger" @onclick="HandleLogout">
-                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Cerrar Sesión
+                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span>Cerrar Sesión
                     </button>
                 </div>
             </Authorized>
             <NotAuthorized>
                  <div class="nav-item px-3 mt-4">
                     <NavLink class="nav-link" href="/login">
-                        <span class="bi bi-person-circle" aria-hidden="true"></span> Iniciar Sesión
+                        <span class="bi bi-person-circle" aria-hidden="true"></span>Iniciar Sesión
                     </NavLink>
                 </div>
             </NotAuthorized>
@@ -108,7 +108,7 @@
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    private void ToggleNavMenu()
+    public void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
